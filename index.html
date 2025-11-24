@@ -1,0 +1,3480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trufflex - Worldbuilding Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(37, 99, 235, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(37, 99, 235, 0.8), 0 0 30px rgba(59, 130, 246, 0.6); }
+        }
+
+        :root {
+            --electric-blue: #0EA5E9;
+            --deep-blue: #1E3A8A;
+            --sky-blue: #0369A1;
+            --light-blue: #F0F9FF;
+            --off-white: #F8FAFC;
+            --white: #FFFFFF;
+            --dark-blue: #0F172A;
+            --medium-dark: #1E293B;
+            --text-dark: #1F2937;
+            --text-light: #FFFFFF;
+            --text-muted: #64748B;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, var(--light-blue) 0%, var(--white) 50%, var(--off-white) 100%);
+            color: var(--text-dark);
+            transition: background 0.5s ease, color 0.3s ease;
+            overflow-x: hidden;
+        }
+
+        body.dark {
+            background: linear-gradient(135deg, var(--dark-blue) 0%, var(--medium-dark) 50%, #1F2937 100%);
+            color: var(--text-light);
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(14, 165, 233, 0.02) 10px,
+                rgba(14, 165, 233, 0.02) 20px
+            );
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        body.dark::before {
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(14, 165, 233, 0.03) 10px,
+                rgba(14, 165, 233, 0.03) 20px
+            );
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, var(--deep-blue) 0%, var(--sky-blue) 50%, var(--electric-blue) 100%);
+            box-shadow: 4px 0 20px rgba(14, 165, 233, 0.3), inset -1px 0 0 rgba(14, 165, 233, 0.2);
+            position: relative;
+            z-index: 10;
+        }
+
+        body.dark .sidebar {
+            background: linear-gradient(180deg, var(--deep-blue) 0%, var(--sky-blue) 50%, #0c4a6e 100%);
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.5), inset -1px 0 0 rgba(14, 165, 233, 0.1);
+        }
+
+        .card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(30, 64, 175, 0.08), 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(37, 99, 235, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #1E40AF, #2563EB, #3B82F6);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        body.dark .card {
+            background: linear-gradient(135deg, #1F2937 0%, #111827 100%);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.15);
+        }
+
+        .card:hover {
+            transform: translateY(-4px) scale(1.01);
+            box-shadow: 0 12px 24px rgba(30, 64, 175, 0.15), 0 4px 8px rgba(37, 99, 235, 0.1);
+        }
+
+        body.dark .card:hover {
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.6), 0 4px 8px rgba(59, 130, 246, 0.2);
+        }
+
+        .btn {
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 500;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--electric-blue) 0%, var(--sky-blue) 50%, var(--deep-blue) 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--sky-blue) 0%, var(--electric-blue) 50%, var(--deep-blue) 100%);
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98) translateY(0);
+        }
+
+        .btn-secondary {
+            background: #F3F4F6;
+            color: #1F2937;
+        }
+
+        body.dark .btn-secondary {
+            background: #374151;
+            color: #F9FAFB;
+        }
+
+        .btn-secondary:hover {
+            background: #E5E7EB;
+        }
+
+        body.dark .btn-secondary:hover {
+            background: #4B5563;
+        }
+
+        .modal {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        body.dark .modal-content {
+            background: #2D2D2D;
+        }
+
+        .input, .textarea, .select {
+            border: 2px solid #E5E7EB;
+            border-radius: 8px;
+            padding: 10px 14px;
+            width: 100%;
+            transition: border-color 0.2s;
+            background: white;
+        }
+
+        body.dark .input,
+        body.dark .textarea,
+        body.dark .select {
+            border-color: #374151;
+            background: #111827;
+            color: #F9FAFB;
+        }
+
+        .input:focus, .textarea:focus, .select:focus {
+            outline: none;
+            border-color: #2563EB;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+            z-index: 10000;
+            animation: slideIn 0.3s ease;
+        }
+
+        body.dark .toast {
+            background: #1F2937;
+            color: #F9FAFB;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .nav-item {
+            padding: 12px 20px;
+            border-radius: 10px;
+            margin: 6px 0;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, #60A5FA, #93C5FD);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(5px);
+            padding-left: 24px;
+        }
+
+        .nav-item:hover::before {
+            opacity: 1;
+        }
+
+        .nav-item.active {
+            background: rgba(96, 165, 250, 0.25);
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            animation: glow 2s infinite;
+        }
+
+        .nav-item.active::before {
+            opacity: 1;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .graph-node {
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .graph-node:hover {
+            transform: scale(1.1);
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 30px;
+            margin-bottom: 20px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #2563EB;
+            border: 3px solid white;
+        }
+
+        body.dark .timeline-item::before {
+            border-color: #1F2937;
+        }
+
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 12px;
+            width: 2px;
+            height: calc(100% + 8px);
+            background: #E5E7EB;
+        }
+
+        body.dark .timeline-item::after {
+            background: #374151;
+        }
+
+        .timeline-item:last-child::after {
+            display: none;
+        }
+
+        .entity-tag {
+            display: inline-block;
+            padding: 5px 12px;
+            margin: 3px;
+            border-radius: 8px;
+            font-size: 11px;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(59, 130, 246, 0.15));
+            border: 1px solid rgba(37, 99, 235, 0.3);
+            color: #1E40AF;
+            font-weight: 500;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .entity-tag:hover {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.2), rgba(59, 130, 246, 0.25));
+            border-color: #2563EB;
+            transform: scale(1.05);
+        }
+
+        body.dark .entity-tag {
+            background: linear-gradient(135deg, rgba(30, 64, 175, 0.4), rgba(29, 78, 216, 0.5));
+            border-color: rgba(59, 130, 246, 0.5);
+            color: #93C5FD;
+        }
+
+        body.dark .entity-tag:hover {
+            background: linear-gradient(135deg, rgba(30, 64, 175, 0.6), rgba(29, 78, 216, 0.7));
+            border-color: #60A5FA;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--electric-blue) 0%, var(--sky-blue) 50%, var(--deep-blue) 100%);
+            color: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 8px 20px rgba(14, 165, 233, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .stat-card:hover::after {
+            opacity: 1;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 12px 30px rgba(30, 64, 175, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        body.dark .stat-card {
+            background: linear-gradient(135deg, #1E3A8A 0%, #1E40AF 50%, #1D4ED8 100%);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(59, 130, 246, 0.2);
+        }
+
+        body.dark .stat-card:hover {
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(59, 130, 246, 0.3);
+        }
+
+        .sidebar-toggle {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -280px;
+                transition: left 0.3s ease;
+                z-index: 1000;
+            }
+
+            .sidebar.open {
+                left: 0;
+            }
+
+            .sidebar-toggle {
+                display: block;
+            }
+        }
+
+        .markdown-toolbar button {
+            padding: 6px 12px;
+            margin: 0 2px;
+            border: 1px solid #D4D4D4;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        body.dark .markdown-toolbar button {
+            background: #1A1A1A;
+            border-color: #4A4A4A;
+            color: #E5E5E5;
+        }
+
+        .markdown-toolbar button:hover {
+            background: #F5F5DC;
+        }
+
+        body.dark .markdown-toolbar button:hover {
+            background: #3E2723;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6B6B6B;
+        }
+
+        body.dark .empty-state {
+            color: #8C8C8C;
+        }
+
+        .multi-select {
+            border: 2px solid #D4D4D4;
+            border-radius: 8px;
+            padding: 8px;
+            max-height: 150px;
+            overflow-y: auto;
+            background: white;
+        }
+
+        body.dark .multi-select {
+            border-color: #4A4A4A;
+            background: #1A1A1A;
+        }
+
+        .multi-select-item {
+            padding: 6px 10px;
+            margin: 2px 0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .multi-select-item:hover {
+            background: #F5F5DC;
+        }
+
+        body.dark .multi-select-item:hover {
+            background: #3E2723;
+        }
+
+        .multi-select-item.selected {
+            background: linear-gradient(135deg, #D2691E, #A0522D);
+            color: white;
+        }
+
+        /* Auth Screen Styles */
+        .auth-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--electric-blue) 0%, var(--sky-blue) 50%, var(--deep-blue) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            animation: fadeIn 0.5s;
+        }
+
+        body.dark .auth-screen {
+            background: linear-gradient(135deg, var(--deep-blue) 0%, var(--sky-blue) 50%, var(--dark-blue) 100%);
+        }
+
+        .auth-screen::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 20px,
+                rgba(255, 255, 255, 0.03) 20px,
+                rgba(255, 255, 255, 0.03) 40px
+            );
+        }
+
+        .auth-card {
+            background: white;
+            border-radius: 24px;
+            padding: 48px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 100px rgba(59, 130, 246, 0.2);
+            max-width: 480px;
+            width: 90%;
+            position: relative;
+            z-index: 1;
+            animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body.dark .auth-card {
+            background: linear-gradient(135deg, #1F2937 0%, #111827 100%);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 100px rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .auth-logo {
+            width: 140px;
+            height: 140px;
+            margin: 0 auto 24px;
+            animation: fadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .auth-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 8px 24px rgba(59, 130, 246, 0.5));
+            animation: logoGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes logoGlow {
+            0%, 100% {
+                filter: drop-shadow(0 8px 24px rgba(59, 130, 246, 0.5));
+            }
+            50% {
+                filter: drop-shadow(0 12px 32px rgba(59, 130, 246, 0.7)) drop-shadow(0 0 16px rgba(96, 165, 250, 0.4));
+            }
+        }
+
+        .auth-title {
+            font-size: 32px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--electric-blue), var(--deep-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        body.dark .auth-title {
+            background: linear-gradient(135deg, var(--electric-blue), var(--light-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .auth-subtitle {
+            text-align: center;
+            color: #6B6B6B;
+            margin-bottom: 32px;
+            font-size: 14px;
+        }
+
+        body.dark .auth-subtitle {
+            color: #A9A9A9;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2D2D2D;
+            font-size: 14px;
+        }
+
+        body.dark .form-group label {
+            color: #E5E5E5;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #D4D4D4;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        body.dark .form-group input {
+            background: #1A1A1A;
+            border-color: #4A4A4A;
+            color: #E5E5E5;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #2563EB;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+
+        body.dark .form-group input:focus {
+            border-color: #60A5FA;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+
+        .error-message {
+            color: #dc2626;
+            font-size: 13px;
+            margin-top: 8px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        .password-strength {
+            height: 4px;
+            background: #E5E5E5;
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .password-strength.show {
+            display: block;
+        }
+
+        .password-strength-bar {
+            height: 100%;
+            transition: all 0.3s;
+            border-radius: 2px;
+        }
+
+        .password-strength-bar.weak {
+            width: 33%;
+            background: #dc2626;
+        }
+
+        .password-strength-bar.medium {
+            width: 66%;
+            background: #f59e0b;
+        }
+
+        .password-strength-bar.strong {
+            width: 100%;
+            background: #10b981;
+        }
+
+        .auth-link {
+            text-align: center;
+            margin-top: 24px;
+            color: #6B6B6B;
+            font-size: 14px;
+        }
+
+        .auth-link a {
+            color: #2563EB;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .auth-link a:hover {
+            color: #1E40AF;
+            text-decoration: underline;
+        }
+
+        body.dark .auth-link a {
+            color: #60A5FA;
+        }
+
+        body.dark .auth-link a:hover {
+            color: #93C5FD;
+        }
+
+        .logo-header {
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 8px rgba(59, 130, 246, 0.4));
+            transition: transform 0.3s ease;
+        }
+
+        .logo-header:hover {
+            transform: scale(1.05);
+            filter: drop-shadow(0 4px 12px rgba(59, 130, 246, 0.6));
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            border-radius: 12px;
+            background: rgba(37, 99, 235, 0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .user-menu:hover {
+            background: rgba(37, 99, 235, 0.2);
+        }
+
+        body.dark .user-menu {
+            background: rgba(30, 64, 175, 0.3);
+        }
+
+        body.dark .user-menu:hover {
+            background: rgba(30, 64, 175, 0.5);
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--electric-blue), var(--sky-blue));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 16px;
+            box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.1) 0%, rgba(14, 165, 233, 0.05) 100%);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 32px;
+            border: 2px solid rgba(14, 165, 233, 0.2);
+            animation: fadeIn 0.6s;
+        }
+
+        body.dark .hero-section {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.3) 0%, rgba(3, 105, 161, 0.2) 100%);
+            border-color: rgba(14, 165, 233, 0.2);
+        }
+
+        .hero-title {
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--electric-blue), var(--deep-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        body.dark .hero-title {
+            background: linear-gradient(135deg, var(--electric-blue), var(--light-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s;
+        }
+    </style>
+</head>
+<body>
+    <!-- Auth Screen -->
+    <div id="authScreen" class="auth-screen" style="display: none;">
+        <div class="auth-card">
+            <div class="auth-logo">
+                <img src="https://user-gen-media-assets.s3.amazonaws.com/gemini_images/79bf7c71-38a9-43e0-8e62-e6f714f4e928.png" alt="Trufflex Logo" style="filter: drop-shadow(0 4px 20px rgba(59, 130, 246, 0.6));">
+            </div>
+            <h1 class="auth-title" id="authTitle">Welcome Back</h1>
+            <p class="auth-subtitle" id="authSubtitle">Sign in to continue your worldbuilding journey</p>
+            
+            <form id="authForm" onsubmit="handleAuth(event)">
+                <div id="usernameGroup" class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" required>
+                </div>
+                
+                <div id="emailGroup" class="form-group" style="display: none;">
+                    <label for="email">Email</label>
+                    <input type="email" id="email">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required oninput="checkPasswordStrength()">
+                    <div id="passwordStrength" class="password-strength">
+                        <div id="passwordStrengthBar" class="password-strength-bar"></div>
+                    </div>
+                </div>
+                
+                <div id="confirmPasswordGroup" class="form-group" style="display: none;">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword">
+                </div>
+                
+                <div id="errorMessage" class="error-message"></div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 24px; padding: 14px;" id="authButton">
+                    Sign In
+                </button>
+            </form>
+            
+            <div class="auth-link">
+                <span id="authToggleText">New user?</span>
+                <a id="authToggleLink" onclick="toggleAuthMode()">Register here</a>
+            </div>
+            
+            <div id="testAccountsInfo" class="card p-4 mt-4" style="background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.3);">
+                <h4 class="font-bold mb-2" style="color: var(--electric-blue); font-size: 13px;">🎮 Try Demo Accounts</h4>
+                <div style="font-size: 12px; color: var(--text-muted); font-family: monospace;">
+                    <div>• <strong>storyteller</strong> / demo123</div>
+                    <div>• <strong>gamemaster</strong> / demo456</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Bar -->
+    <div class="fixed top-0 left-0 right-0 h-16 bg-white dark:bg-gray-800 shadow-md flex items-center justify-between px-6 z-50" style="background: white; display: none;" id="topbar">
+        <div class="flex items-center gap-4">
+            <button class="sidebar-toggle btn-secondary btn" onclick="toggleSidebar()">
+                ☰
+            </button>
+            <img src="https://user-gen-media-assets.s3.amazonaws.com/gemini_images/79bf7c71-38a9-43e0-8e62-e6f714f4e928.png" alt="Trufflex" class="logo-header">
+            <h1 class="text-2xl font-bold" style="background: linear-gradient(135deg, var(--electric-blue), var(--sky-blue), var(--deep-blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: -0.5px;">Trufflex</h1>
+        </div>
+        <div class="flex items-center gap-4">
+            <button class="btn-secondary btn" onclick="toggleDarkMode()" id="darkModeBtn">
+                🌙
+            </button>
+            <div class="user-menu" onclick="navigateToProfile()">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <span style="font-weight: 600; color: var(--electric-blue);" id="usernameDisplay">User</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar fixed left-0 top-16 bottom-0 w-64 p-4 overflow-y-auto" id="sidebar">
+        <nav>
+            <div class="nav-item active" onclick="navigate('dashboard')">
+                📊 Dashboard
+            </div>
+            <div class="nav-item" onclick="navigate('worlds')">
+                🌍 Worlds
+            </div>
+            <div class="nav-item" onclick="navigate('characters')">
+                👤 Characters
+            </div>
+            <div class="nav-item" onclick="navigate('lore')">
+                📜 Lore
+            </div>
+            <div class="nav-item" onclick="navigate('locations')">
+                📍 Locations
+            </div>
+            <div class="nav-item" onclick="navigate('events')">
+                ⚡ Events
+            </div>
+            <div class="nav-item" onclick="navigate('powers')">
+                ✨ Powers
+            </div>
+            <div class="nav-item" onclick="navigate('graph')">
+                🔗 Graph View
+            </div>
+            <div class="nav-item" onclick="navigate('search')">
+                🔍 Search
+            </div>
+            <div class="nav-item" onclick="navigateToProfile()">
+                👤 Profile
+            </div>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-0 md:ml-64 mt-16 p-6 min-h-screen" id="mainContent">
+        <!-- Content will be dynamically loaded here -->
+    </div>
+
+    <!-- Footer -->
+    <div class="ml-0 md:ml-64 p-4 text-center" style="color: #1E40AF;" id="footer">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <span style="background: linear-gradient(135deg, #1E40AF, #3B82F6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 600;">Trufflex Worldbuilding Platform</span>
+            <span>•</span>
+            <span style="font-size: 12px; opacity: 0.7;">Build Epic Worlds</span>
+        </div>
+    </div>
+
+    <script>
+        // ========================================
+        // BULLETPROOF AUTHENTICATION SYSTEM
+        // ========================================
+        // CRITICAL: This runs in a sandboxed environment WITHOUT localStorage/sessionStorage access
+        // All data persists ONLY in JavaScript memory during the browser tab's lifetime
+        // Data is LOST when you close/refresh the tab - this is a security limitation
+        // For true persistence, a backend server with database is required
+        
+        let currentUser = null;
+        let isLoginMode = true;
+        
+        // Active session - cleared on logout
+        let activeSession = null;
+        
+        // Session timeout (30 minutes)
+        const SESSION_TIMEOUT = 30 * 60 * 1000;
+        let lastActivityTime = Date.now();
+
+        // Initialize app
+        function initializeSession() {
+            console.log('🚀 Trufflex App Initialized');
+            console.log('📊 User Database:', userDatabase.map(u => `${u.username} (${u.email})`));
+            console.log('⚠️  NOTE: Data exists only in memory - lost on page refresh');
+            console.log('🔐 Test Accounts: storyteller/demo123 or gamemaster/demo456');
+            
+            // Check for active session
+            if (activeSession && activeSession.username) {
+                // Check if session expired
+                const now = Date.now();
+                if (now - lastActivityTime > SESSION_TIMEOUT) {
+                    console.log('⏰ Session expired');
+                    activeSession = null;
+                    currentUser = null;
+                    showAuthScreen();
+                    showToast('Session expired. Please login again.');
+                    return;
+                }
+                
+                // Session valid
+                currentUser = activeSession;
+                lastActivityTime = now;
+                hideAuthScreen();
+                updateUserDisplay();
+                renderDashboard();
+                console.log('✅ Auto-login successful:', currentUser.username);
+                return;
+            }
+            
+            // No active session
+            console.log('🔐 Please login to continue');
+            showAuthScreen();
+        }
+        
+        // Update activity timestamp on user interaction
+        function updateActivity() {
+            if (activeSession) {
+                lastActivityTime = Date.now();
+            }
+        }
+        
+        // Track user activity
+        document.addEventListener('click', updateActivity);
+        document.addEventListener('keypress', updateActivity);
+
+        // Enhanced user profiles with customization - IN MEMORY ONLY
+        let userDatabase = [
+            {
+                id: 'u1',
+                username: 'storyteller',
+                email: 'storyteller@trufflex.com',
+                password: 'demo123',
+                createdAt: '2025-11-01T10:00:00Z',
+                lastLoginAt: new Date().toISOString(),
+                profile: {
+                    bio: 'Fantasy worldbuilder and creative storyteller',
+                    avatar: '📖',
+                    theme: 'dark',
+                    accentColor: 'blue',
+                    fontSize: 'medium',
+                    language: 'en',
+                    timezone: 'UTC',
+                    notifications: true
+                },
+                stats: {
+                    totalWorlds: 3,
+                    totalCharacters: 6,
+                    totalLore: 5,
+                    totalLocations: 6,
+                    totalEvents: 5,
+                    totalPowers: 7
+                }
+            },
+            {
+                id: 'u2',
+                username: 'gamemaster',
+                email: 'gamemaster@trufflex.com',
+                password: 'demo456',
+                createdAt: '2025-11-02T10:00:00Z',
+                lastLoginAt: new Date().toISOString(),
+                profile: {
+                    bio: 'D&D campaign designer and game master',
+                    avatar: '🎲',
+                    theme: 'light',
+                    accentColor: 'indigo',
+                    fontSize: 'medium',
+                    language: 'en',
+                    timezone: 'UTC',
+                    notifications: true
+                },
+                stats: {
+                    totalWorlds: 2,
+                    totalCharacters: 8,
+                    totalLore: 3,
+                    totalLocations: 4,
+                    totalEvents: 4,
+                    totalPowers: 5
+                }
+            }
+        ];
+
+        // Activity Log
+        let activityLog = [
+            { timestamp: '2025-11-03T10:00:00Z', userId: 'u1', type: 'world', action: 'created', entityId: 'w1', entityName: 'Eldoria' },
+            { timestamp: '2025-11-04T10:00:00Z', userId: 'u1', type: 'world', action: 'created', entityId: 'w2', entityName: 'Nova Prime' },
+            { timestamp: '2025-11-03T11:00:00Z', userId: 'u1', type: 'character', action: 'created', entityId: 'c1', entityName: 'Aria Thornheart' }
+        ];
+
+        // Favorites/Bookmarks
+        let favorites = {};
+
+        // Data Storage
+        let appData = {
+            worlds: [
+                {
+                    id: 'w1',
+                    name: 'Eldoria',
+                    description: 'A vast fantasy realm of ancient magic, mythical creatures, and warring kingdoms. Mountains touch the sky, and forests hide forgotten secrets.',
+                    type: 'Fantasy',
+                    tags: 'high-fantasy, magic, medieval, kingdoms',
+                    image: '',
+                    createdAt: '2025-11-03T10:00:00Z',
+                    updatedAt: '2025-11-08T12:00:00Z',
+                    createdBy: 'u1'
+                },
+                {
+                    id: 'w2',
+                    name: 'Nova Prime',
+                    description: 'A futuristic megacity on a colonized planet, where cybernetic enhancements meet corporate warfare and underground resistance movements fight for freedom.',
+                    type: 'Sci-Fi',
+                    tags: 'cyberpunk, space-colony, dystopian, tech',
+                    image: '',
+                    createdAt: '2025-11-04T10:00:00Z',
+                    updatedAt: '2025-11-08T11:00:00Z',
+                    createdBy: 'u1'
+                },
+                {
+                    id: 'w3',
+                    name: 'Shadowvale',
+                    description: 'A cursed land shrouded in perpetual twilight, where the boundary between the living and the dead grows thin, and dark forces stir.',
+                    type: 'Horror',
+                    tags: 'dark-fantasy, gothic, supernatural, cursed',
+                    image: '',
+                    createdAt: '2025-11-05T10:00:00Z',
+                    updatedAt: '2025-11-08T10:30:00Z',
+                    createdBy: 'u1'
+                }
+            ],
+            characters: [
+                {
+                    id: 'c1',
+                    name: 'Aria Thornheart',
+                    role: 'Queen of the Northern Realms',
+                    backstory: 'Born to a minor noble house, Aria rose to power through cunning diplomacy and fierce determination. She unified the fractured northern kingdoms under her rule.',
+                    affiliations: 'Northern Alliance, Royal Council',
+                    appearance: 'Tall with auburn hair, piercing green eyes, often wears silver armor adorned with thorns',
+                    world_id: 'w1',
+                    event_ids: ['e1', 'e2'],
+                    power_ids: ['p1'],
+                    createdAt: '2025-11-03T11:00:00Z',
+                    updatedAt: '2025-11-08T12:15:00Z',
+                    createdBy: 'u1'
+                },
+                {
+                    id: 'c2',
+                    name: 'Kael Shadowblade',
+                    role: 'Master Assassin',
+                    backstory: 'Once a royal guard, Kael was framed for a crime he didn\'t commit. Now he operates in the shadows, seeking justice while haunted by his past.',
+                    affiliations: 'Shadow Guild, Former Royal Guard',
+                    appearance: 'Lean build, dark hooded cloak, silver daggers, scar across left cheek',
+                    world_id: 'w1',
+                    event_ids: ['e2'],
+                    power_ids: ['p2'],
+                    createdAt: '2025-11-03T11:30:00Z',
+                    updatedAt: '2025-11-08T11:45:00Z',
+                    createdBy: 'u1'
+                },
+                {
+                    id: 'c3',
+                    name: 'Dr. Zara Chen',
+                    role: 'Cybernetics Engineer &amp; Rebel Leader',
+                    backstory: 'A brilliant scientist who witnessed corporate atrocities, Zara now leads the resistance movement, using her expertise to level the playing field against mega-corporations.',
+                    affiliations: 'The Liberation Front, Former Helix Corp',
+                    appearance: 'Cybernetic left arm with glowing blue circuits, short black hair, tactical gear',
+                    world_id: 'w2',
+                    event_ids: ['e3', 'e4'],
+                    power_ids: ['p4'],
+                    createdAt: '2025-11-04T10:30:00Z',
+                    updatedAt: '2025-11-08T10:00:00Z',
+                    createdBy: 'u1'
+                },
+                {
+                    id: 'c4',
+                    name: 'Marcus Steel',
+                    role: 'Corporate Enforcer',
+                    backstory: 'Enhanced soldier working for Helix Corporation, Marcus questions his loyalty as he uncovers dark secrets about his employers.',
+                    affiliations: 'Helix Corporation Security Division',
+                    appearance: 'Military-grade augmentations, tactical exosuit, stern expression',
+                    world_id: 'w2',
+                    event_ids: ['e3'],
+                    power_ids: ['p5'],
+                    createdAt: '2025-11-04T11:00:00Z',
+                    updatedAt: '2025-11-08T09:30:00Z',
+                    createdBy: 'u1'
+                },
+                {
+                    id: 'c5',
+                    name: 'Elara Moonwhisper',
+                    role: 'High Priestess of the Old Faith',
+                    backstory: 'Guardian of ancient magical traditions, Elara bridges the mortal and divine realms, wielding powers that predate the kingdoms.',
+                    affiliations: 'Temple of the Moon, Council of Mages',
+                    appearance: 'Silver robes with moon symbols, ethereal glow, silver-white hair',
+                    world_id: 'w1',
+                    event_ids: ['e1'],
+                    power_ids: ['p1', 'p3'],
+                    createdAt: '2025-11-03T12:00:00Z',
+                    updatedAt: '2025-11-08T09:00:00Z',
+                    createdBy: 'u1'
+                },
+                {
+                    id: 'c6',
+                    name: 'Viktor Ashford',
+                    role: 'Vampire Lord',
+                    backstory: 'Cursed centuries ago, Viktor rules Shadowvale\'s undead with an iron fist, seeking a way to break the eternal curse while maintaining his dark domain.',
+                    affiliations: 'Shadowvale Court, The Undying Council',
+                    appearance: 'Pale skin, crimson eyes, Victorian-era clothing, commanding presence',
+                    world_id: 'w3',
+                    event_ids: ['e5'],
+                    power_ids: ['p6', 'p7'],
+                    createdAt: '2025-11-05T10:30:00Z',
+                    updatedAt: '2025-11-08T08:30:00Z',
+                    createdBy: 'u1'
+                }
+            ],
+            lore: [
+                {
+                    id: 'l1',
+                    title: 'The First Convergence',
+                    content: 'Long ago, when the world was young, the gods descended from the heavens and walked among mortals. They taught magic, forged kingdoms, and planted the seeds of civilization. But their presence brought both blessing and curse, for with great power came great conflict. The First Convergence marks the era when divine and mortal destinies intertwined forever.',
+                    type: 'History',
+                    world_id: 'w1',
+                    character_ids: ['c5'],
+                    location_ids: ['loc1'],
+                    createdAt: '2025-11-03T12:00:00Z',
+                    updatedAt: '2025-11-08T08:00:00Z',
+                    createdBy: 'u1'
+                },
+                {
+                    id: 'l2',
+                    title: 'The Shadow Guild\'s Code',
+                    content: 'We are the blade in the darkness, the justice forgotten by kings. We take no innocent life. We serve no crown. We answer only to the truth. The Shadow Guild operates by three laws: Never betray a contract. Never harm the innocent. Never reveal a brother\'s identity.',
+                    type: 'Culture',
+                    world_id: 'w1',
+                    character_ids: ['c2'],
+                    location_ids: [],
+                    createdAt: '2025-11-03T13:00:00Z',
+                    updatedAt: '2025-11-08T07:30:00Z',
+                    createdBy: 'u1'
+                },
+                {
+                    id: 'l3',
+                    title: 'The Corporate Wars',
+                    content: 'In 2287, the megacorporations divided Earth\'s colonies. What began as economic competition escalated into armed conflict. Thousands died. The Liberation Front was born from the ashes of oppression, dedicated to freeing humanity from corporate control.',
+                    type: 'History',
+                    world_id: 'w2',
+                    character_ids: ['c3', 'c4'],
+                    location_ids: ['loc4'],
+                    createdAt: '2025-11-04T11:00:00Z',
+                    updatedAt: '2025-11-08T07:00:00Z',
+                    createdBy: 'u1'
+                },
+                {
+                    id: 'l4',
+                    title: 'The Crimson Prophecy',
+                    content: 'When the blood moon rises thrice in a single year, the veil between worlds shall tear. The dead shall walk, and the living shall fall. Only one born of both shadow and light can prevent the eternal night.',
+                    type: 'Myth',
+                    world_id: 'w3',
+                    character_ids: ['c6'],
+                    location_ids: ['loc5'],
+                    createdAt: '2025-11-05T11:00:00Z',
+                    updatedAt: '2025-11-08T06:30:00Z',
+                    createdBy: 'u1'
+                },
+                {
+                    id: 'l5',
+                    title: 'The Art of Rune Magic',
+                    content: 'Runes are the language of creation itself. Each symbol carries power inherited from the gods. To master rune magic, one must understand not just the symbols, but the intent behind them. The greatest mages can weave multiple runes together, creating spells of devastating complexity.',
+                    type: 'Legend',
+                    world_id: 'w1',
+                    character_ids: ['c5'],
+                    location_ids: ['loc2'],
+                    createdAt: '2025-11-03T14:00:00Z',
+                    updatedAt: '2025-11-08T06:00:00Z',
+                    createdBy: 'u1'
+                }
+            ],
+            locations: [
+                {
+                    id: 'loc1',
+                    name: 'Thornspire Castle',
+                    geography: 'Massive fortress carved into a mountain peak, surrounded by pine forests and steep cliffs',
+                    climate: 'Cold, frequent snowfall, harsh winters',
+                    importance: 'Major',
+                    world_id: 'w1',
+                    character_ids: ['c1'],
+                    event_ids: ['e1'],
+                    createdAt: '2025-11-03T13:00:00Z',
+                    updatedAt: '2025-11-08T05:30:00Z',
+                    createdBy: 'u1'
+                },
+                {
+                    id: 'loc2',
+                    name: 'The Whispering Woods',
+                    geography: 'Ancient forest where trees are said to be sentient, filled with magical creatures and hidden pathways',
+                    climate: 'Temperate, misty, ethereal atmosphere',
+                    importance: 'Major',
+                    world_id: 'w1',
+                    character_ids: ['c2', 'c5'],
+                    event_ids: ['e2']
+                },
+                {
+                    id: 'loc3',
+                    name: 'Temple of the Moon',
+                    geography: 'Sacred temple built on floating islands connected by bridges of light',
+                    climate: 'Serene, touched by divine magic, always bathed in moonlight',
+                    importance: 'Major',
+                    world_id: 'w1',
+                    character_ids: ['c5'],
+                    event_ids: ['e1']
+                },
+                {
+                    id: 'loc4',
+                    name: 'Nova Prime Central District',
+                    geography: 'Towering skyscrapers, neon-lit streets, underground tunnels, corporate headquarters dominating the skyline',
+                    climate: 'Artificial atmosphere, controlled weather, perpetual city glow',
+                    importance: 'Major',
+                    world_id: 'w2',
+                    character_ids: ['c3', 'c4'],
+                    event_ids: ['e3', 'e4']
+                },
+                {
+                    id: 'loc5',
+                    name: 'Ashford Manor',
+                    geography: 'Gothic mansion on a cliff overlooking a dead forest, perpetual storm clouds above',
+                    climate: 'Cold, perpetual twilight, oppressive atmosphere',
+                    importance: 'Major',
+                    world_id: 'w3',
+                    character_ids: ['c6'],
+                    event_ids: ['e5']
+                },
+                {
+                    id: 'loc6',
+                    name: 'The Crimson Markets',
+                    geography: 'Underground bazaar in Shadowvale where the living trade with spirits and worse',
+                    climate: 'Damp, cold, lit by ghost-light',
+                    importance: 'Minor',
+                    world_id: 'w3',
+                    character_ids: [],
+                    event_ids: []
+                }
+            ],
+            events: [
+                {
+                    id: 'e1',
+                    name: 'The Coronation of Queen Aria',
+                    date: 'Year 1247, Spring Solstice',
+                    description: 'Aria Thornheart was crowned Queen of the Northern Realms in a grand ceremony blessed by the High Priestess. The unification of the northern kingdoms marked a new era of peace.',
+                    world_id: 'w1',
+                    character_ids: ['c1', 'c5'],
+                    location_id: 'loc1',
+                    outcome: 'Successful unification of the northern kingdoms under one crown',
+                    createdAt: '2025-11-03T14:00:00Z',
+                    updatedAt: '2025-11-08T05:00:00Z',
+                    createdBy: 'u1'
+                },
+                {
+                    id: 'e2',
+                    name: 'The Assassination Attempt',
+                    date: 'Year 1248, Autumn',
+                    description: 'An unknown faction attempted to assassinate Queen Aria in the Whispering Woods. Kael Shadowblade intervened, saving her life but revealing his presence to the court.',
+                    world_id: 'w1',
+                    character_ids: ['c1', 'c2'],
+                    location_id: 'loc2',
+                    outcome: 'Kael gained conditional pardon; assassins escaped'
+                },
+                {
+                    id: 'e3',
+                    name: 'The Helix Corp Raid',
+                    date: '2289, June 15',
+                    description: 'The Liberation Front launched a daring raid on Helix Corporation\'s main facility, stealing critical data about their human experimentation programs.',
+                    world_id: 'w2',
+                    character_ids: ['c3', 'c4'],
+                    location_id: 'loc4',
+                    outcome: 'Data recovered; Marcus Steel began questioning his loyalties'
+                },
+                {
+                    id: 'e4',
+                    name: 'The Liberation Broadcast',
+                    date: '2290, January 1',
+                    description: 'Dr. Zara Chen broadcast Helix Corp\'s crimes across all colonies, sparking widespread riots and rebellions.',
+                    world_id: 'w2',
+                    character_ids: ['c3'],
+                    location_id: 'loc4',
+                    outcome: 'Public opinion turned against mega-corporations'
+                },
+                {
+                    id: 'e5',
+                    name: 'The Blood Moon Rising',
+                    date: 'Unknown, Prophesied Future',
+                    description: 'The first of three blood moons rises over Shadowvale, signaling the beginning of the Crimson Prophecy.',
+                    world_id: 'w3',
+                    character_ids: ['c6'],
+                    location_id: 'loc5',
+                    outcome: 'Pending - the prophecy unfolds'
+                }
+            ],
+            powers: [
+                {
+                    id: 'p1',
+                    name: 'Divine Blessing',
+                    description: 'The ability to channel divine energy for healing, protection, or smiting enemies',
+                    origin: 'Granted by the gods to their chosen servants',
+                    effects: 'Heal wounds, create protective barriers, unleash holy light',
+                    world_id: 'w1',
+                    character_ids: ['c1', 'c5'],
+                    createdAt: '2025-11-03T15:00:00Z',
+                    updatedAt: '2025-11-08T04:30:00Z',
+                    createdBy: 'u1'
+                },
+                {
+                    id: 'p2',
+                    name: 'Shadow Step',
+                    description: 'Teleport through shadows, becoming one with darkness',
+                    origin: 'Ancient assassin technique passed through Shadow Guild',
+                    effects: 'Move instantly between shadows, become invisible in darkness',
+                    world_id: 'w1',
+                    character_ids: ['c2']
+                },
+                {
+                    id: 'p3',
+                    name: 'Rune Mastery',
+                    description: 'Create and manipulate magical runes to cast powerful spells',
+                    origin: 'Taught by the Old Gods during the First Convergence',
+                    effects: 'Cast versatile magic through rune combinations',
+                    world_id: 'w1',
+                    character_ids: ['c5']
+                },
+                {
+                    id: 'p4',
+                    name: 'Cybernetic Enhancement',
+                    description: 'Advanced technological augmentations that enhance strength, speed, and intelligence',
+                    origin: 'Helix Corporation\'s human enhancement program',
+                    effects: 'Superhuman physical abilities, integrated tech interface, enhanced cognition',
+                    world_id: 'w2',
+                    character_ids: ['c3', 'c4']
+                },
+                {
+                    id: 'p5',
+                    name: 'Neural Override',
+                    description: 'Hack into electronic systems and control them through neural interface',
+                    origin: 'Military-grade neural implant technology',
+                    effects: 'Control machines, access secure systems, interface with AI',
+                    world_id: 'w2',
+                    character_ids: ['c4']
+                },
+                {
+                    id: 'p6',
+                    name: 'Vampiric Immortality',
+                    description: 'Eternal life sustained by consuming blood, enhanced physical abilities',
+                    origin: 'Ancient curse from the Old Gods',
+                    effects: 'Immortality, superhuman strength and speed, rapid regeneration',
+                    world_id: 'w3',
+                    character_ids: ['c6']
+                },
+                {
+                    id: 'p7',
+                    name: 'Necromantic Command',
+                    description: 'Raise and control the undead, communicate with spirits',
+                    origin: 'Dark magic learned through centuries of undeath',
+                    effects: 'Animate corpses, speak with the dead, drain life force',
+                    world_id: 'w3',
+                    character_ids: ['c6']
+                }
+            ]
+        };
+
+        let currentPage = 'dashboard';
+        let isDarkMode = false;
+
+        function getGreeting() {
+            const hour = new Date().getHours();
+            if (hour < 12) return 'Good Morning';
+            if (hour < 18) return 'Good Afternoon';
+            return 'Good Evening';
+        }
+
+        // Helper Functions
+        function generateId(prefix) {
+            return prefix + Date.now() + Math.random().toString(36).substr(2, 9);
+        }
+
+        function getEntityById(type, id) {
+            return appData[type].find(item => item.id === id);
+        }
+
+        function getEntityName(type, id) {
+            const entity = getEntityById(type, id);
+            return entity ? entity.name || entity.title : 'Unknown';
+        }
+
+        function showToast(message, duration = 3000) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.remove();
+            }, duration);
+        }
+
+        function showModal(title, content, onSave) {
+            const modal = document.createElement('div');
+            modal.className = 'modal fixed inset-0 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="modal-content w-full max-w-3xl mx-4 p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold" style="color: #8B4513;">${title}</h2>
+                        <button onclick="this.closest('.modal').remove()" class="text-3xl">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        ${content}
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            // Close on outside click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+
+            return modal;
+        }
+
+        function confirmDialog(message, onConfirm) {
+            const modal = showModal('Confirm Action', `
+                <p class="mb-6">${message}</p>
+                <div class="flex justify-end gap-4">
+                    <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">Cancel</button>
+                    <button class="btn btn-primary" onclick="
+                        this.closest('.modal').remove();
+                        (${onConfirm.toString()})();
+                    ">Confirm</button>
+                </div>
+            `);
+        }
+
+        // Navigation
+        function navigate(page) {
+            currentPage = page;
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            event.target.classList.add('active');
+            renderPage();
+            
+            // Close sidebar on mobile after navigation
+            if (window.innerWidth < 768) {
+                document.getElementById('sidebar').classList.remove('open');
+            }
+        }
+
+        // Navigate to profile
+        function navigateToProfile() {
+            currentPage = 'profile';
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            renderPage();
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        function toggleDarkMode() {
+            isDarkMode = !isDarkMode;
+            document.body.classList.toggle('dark');
+            document.getElementById('topbar').style.background = isDarkMode ? '#1F2937' : 'white';
+            document.getElementById('footer').style.color = isDarkMode ? '#60A5FA' : '#1E40AF';
+            document.getElementById('darkModeBtn').textContent = isDarkMode ? '☀️' : '🌙';
+        }
+
+        // Page Rendering
+        function renderPage() {
+            const content = document.getElementById('mainContent');
+            
+            switch(currentPage) {
+                case 'dashboard':
+                    renderDashboard();
+                    break;
+                case 'worlds':
+                    renderWorlds();
+                    break;
+                case 'characters':
+                    renderCharacters();
+                    break;
+                case 'lore':
+                    renderLore();
+                    break;
+                case 'locations':
+                    renderLocations();
+                    break;
+                case 'events':
+                    renderEvents();
+                    break;
+                case 'powers':
+                    renderPowers();
+                    break;
+                case 'graph':
+                    renderGraph();
+                    break;
+                case 'search':
+                    renderSearch();
+                    break;
+                case 'profile':
+                    renderProfile();
+                    break;
+                default:
+                    renderDashboard();
+            }
+        }
+
+        // Dashboard
+        function renderDashboard() {
+            const content = document.getElementById('mainContent');
+            const greeting = getGreeting();
+            updateUserStats();
+            
+            // Get recent activities
+            const userActivities = activityLog.filter(a => a.userId === currentUser.id).slice(-10).reverse();
+            
+            // Get user favorites
+            const userFavorites = favorites[currentUser.id] || [];
+            content.innerHTML = `
+                <div class="hero-section">
+                    <h1 class="hero-title">${greeting}, ${currentUser ? currentUser.username : 'Worldbuilder'}!</h1>
+                    <p style="font-size: 18px; color: #6B6B6B;">Ready to continue your worldbuilding adventure?</p>
+                </div>
+                
+                <h2 class="text-3xl font-bold mb-6" style="color: #8B4513;">Your Journey</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                    <div class="stat-card">
+                        <div class="text-5xl font-bold mb-2">${appData.worlds.length}</div>
+                        <div class="text-lg">Worlds</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="text-5xl font-bold mb-2">${appData.characters.length}</div>
+                        <div class="text-lg">Characters</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="text-5xl font-bold mb-2">${appData.lore.length}</div>
+                        <div class="text-lg">Lore Entries</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="text-5xl font-bold mb-2">${appData.locations.length}</div>
+                        <div class="text-lg">Locations</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="text-5xl font-bold mb-2">${appData.events.length}</div>
+                        <div class="text-lg">Events</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="text-5xl font-bold mb-2">${appData.powers.length}</div>
+                        <div class="text-lg">Powers</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 gap-6 mb-6">
+                    <div class="card p-6">
+                        <h2 class="text-2xl font-bold mb-4" style="color: #1E40AF;">Recent Activity</h2>
+                        ${userActivities.length > 0 ? `
+                            <div class="space-y-3">
+                                ${userActivities.map(activity => `
+                                    <div class="p-3 rounded-lg" style="background: rgba(37, 99, 235, 0.05); border-left: 3px solid #2563EB;">
+                                        <div class="flex justify-between items-start">
+                                            <div>
+                                                <span class="font-semibold">${activity.action}</span>
+                                                <span class="ml-1">${activity.type}:</span>
+                                                <span class="ml-1" style="color: #1E40AF;">${activity.entityName}</span>
+                                            </div>
+                                            <span class="text-sm" style="color: #6B6B6B;">${timeAgo(activity.timestamp)}</span>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : '<p style="color: #6B6B6B;">No recent activity</p>'}
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="card p-6">
+                        <h2 class="text-2xl font-bold mb-4" style="color: #1E40AF;">Quick Actions</h2>
+                        <div class="flex flex-wrap gap-3">
+                            <button class="btn btn-primary" onclick="openCreateModal('worlds')">+ New World</button>
+                            <button class="btn btn-primary" onclick="openCreateModal('characters')">+ New Character</button>
+                            <button class="btn btn-primary" onclick="openCreateModal('lore')">+ New Lore</button>
+                            <button class="btn btn-primary" onclick="openCreateModal('locations')">+ New Location</button>
+                            <button class="btn btn-primary" onclick="openCreateModal('events')">+ New Event</button>
+                            <button class="btn btn-primary" onclick="openCreateModal('powers')">+ New Power</button>
+                        </div>
+                    </div>
+
+                    <div class="card p-6">
+                        <h2 class="text-2xl font-bold mb-4" style="color: #1E40AF;">Favorites ⭐</h2>
+                        ${userFavorites.length > 0 ? `
+                            <div class="space-y-2">
+                                ${userFavorites.slice(0, 5).map(fav => {
+                                    const entity = getEntityById(fav.type, fav.entityId);
+                                    if (!entity) return '';
+                                    const name = entity.name || entity.title;
+                                    const icons = { worlds: '🌍', characters: '👤', lore: '📜', locations: '📍', events: '⚡', powers: '✨' };
+                                    return `
+                                        <div class="p-3 rounded-lg" style="background: rgba(139, 69, 19, 0.1); cursor: pointer;" onclick="viewEntity('${fav.type}', '${fav.entityId}')">
+                                            <div class="font-bold">${icons[fav.type]} ${name}</div>
+                                            <div class="text-sm" style="color: #6B6B6B;">${fav.type}</div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        ` : '<p style="color: #6B6B6B;">No favorites yet. Click the ⭐ icon on any entity to add it here!</p>'}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Worlds
+        function renderWorlds() {
+            const content = document.getElementById('mainContent');
+            
+            if (appData.worlds.length === 0) {
+                content.innerHTML = `
+                    <div class="empty-state">
+                        <div class="text-6xl mb-4">🌍</div>
+                        <h2 class="text-3xl font-bold mb-4">No Worlds Yet</h2>
+                        <p class="mb-6">Create your first world to begin your worldbuilding journey!</p>
+                        <button class="btn btn-primary" onclick="openCreateModal('worlds')">+ Create World</button>
+                    </div>
+                `;
+                return;
+            }
+
+            content.innerHTML = `
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-4xl font-bold" style="color: #8B4513;">Worlds</h1>
+                    <button class="btn btn-primary" onclick="openCreateModal('worlds')">+ Create World</button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    ${appData.worlds.map(world => {
+                        const isFav = isFavorite('worlds', world.id);
+                        return `
+                        <div class="card p-6 cursor-pointer" onclick="viewEntity('worlds', '${world.id}')">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="text-2xl font-bold" style="color: #8B4513;">${world.name}</h3>
+                                <button class="text-2xl" onclick="event.stopPropagation(); toggleFavorite('worlds', '${world.id}');" style="cursor: pointer; background: none; border: none;">${isFav ? '⭐' : '☆'}</button>
+                            </div>
+                            <div class="badge" style="background: rgba(139, 69, 19, 0.2); color: #8B4513;">${world.type}</div>
+                            <p class="mt-3 mb-4 line-clamp-3">${world.description}</p>
+                            <div class="flex flex-wrap gap-2">
+                                ${world.tags.split(',').map(tag => `<span class="entity-tag">${tag.trim()}</span>`).join('')}
+                            </div>
+                        </div>
+                    `}).join('')}
+                </div>
+            `;
+        }
+
+        // Characters
+        function renderCharacters() {
+            const content = document.getElementById('mainContent');
+            
+            if (appData.characters.length === 0) {
+                content.innerHTML = `
+                    <div class="empty-state">
+                        <div class="text-6xl mb-4">👤</div>
+                        <h2 class="text-3xl font-bold mb-4">No Characters Yet</h2>
+                        <p class="mb-6">Bring your world to life with compelling characters!</p>
+                        <button class="btn btn-primary" onclick="openCreateModal('characters')">+ Create Character</button>
+                    </div>
+                `;
+                return;
+            }
+
+            content.innerHTML = `
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-4xl font-bold" style="color: #8B4513;">Characters</h1>
+                    <button class="btn btn-primary" onclick="openCreateModal('characters')">+ Create Character</button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    ${appData.characters.map(char => {
+                        const world = getEntityById('worlds', char.world_id);
+                        const isFav = isFavorite('characters', char.id);
+                        return `
+                            <div class="card p-6 cursor-pointer" onclick="viewEntity('characters', '${char.id}')">
+                                <div class="flex justify-between items-start mb-2">
+                                    <h3 class="text-2xl font-bold" style="color: #8B4513;">${char.name}</h3>
+                                    <button class="text-2xl" onclick="event.stopPropagation(); toggleFavorite('characters', '${char.id}');" style="cursor: pointer; background: none; border: none;">${isFav ? '⭐' : '☆'}</button>
+                                </div>
+                                <div class="text-sm" style="color: #A0522D;">${char.role}</div>
+                                <div class="badge mb-3" style="background: rgba(139, 69, 19, 0.2); color: #8B4513;">🌍 ${world ? world.name : 'Unknown'}</div>
+                                <p class="line-clamp-3">${char.backstory}</p>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+
+        // Lore
+        function renderLore() {
+            const content = document.getElementById('mainContent');
+            
+            if (appData.lore.length === 0) {
+                content.innerHTML = `
+                    <div class="empty-state">
+                        <div class="text-6xl mb-4">📜</div>
+                        <h2 class="text-3xl font-bold mb-4">No Lore Entries Yet</h2>
+                        <p class="mb-6">Document the histories, myths, and cultures of your world!</p>
+                        <button class="btn btn-primary" onclick="openCreateModal('lore')">+ Create Lore Entry</button>
+                    </div>
+                `;
+                return;
+            }
+
+            content.innerHTML = `
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-4xl font-bold" style="color: #8B4513;">Lore</h1>
+                    <button class="btn btn-primary" onclick="openCreateModal('lore')">+ Create Lore Entry</button>
+                </div>
+                
+                <div class="grid grid-cols-1 gap-4">
+                    ${appData.lore.map(loreEntry => {
+                        const world = getEntityById('worlds', loreEntry.world_id);
+                        return `
+                            <div class="card p-6 cursor-pointer" onclick="viewEntity('lore', '${loreEntry.id}')">
+                                <div class="flex justify-between items-start mb-2">
+                                    <h3 class="text-2xl font-bold" style="color: #8B4513;">${loreEntry.title}</h3>
+                                    <div class="badge" style="background: rgba(34, 197, 94, 0.2); color: #059669;">${loreEntry.type}</div>
+                                </div>
+                                <div class="text-sm mb-3" style="color: #A0522D;">🌍 ${world ? world.name : 'Unknown'}</div>
+                                <p class="line-clamp-2">${loreEntry.content}</p>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+
+        // Locations
+        function renderLocations() {
+            const content = document.getElementById('mainContent');
+            
+            if (appData.locations.length === 0) {
+                content.innerHTML = `
+                    <div class="empty-state">
+                        <div class="text-6xl mb-4">📍</div>
+                        <h2 class="text-3xl font-bold mb-4">No Locations Yet</h2>
+                        <p class="mb-6">Map out the places that make your world unique!</p>
+                        <button class="btn btn-primary" onclick="openCreateModal('locations')">+ Create Location</button>
+                    </div>
+                `;
+                return;
+            }
+
+            content.innerHTML = `
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-4xl font-bold" style="color: #8B4513;">Locations</h1>
+                    <button class="btn btn-primary" onclick="openCreateModal('locations')">+ Create Location</button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    ${appData.locations.map(location => {
+                        const world = getEntityById('worlds', location.world_id);
+                        const importanceColors = {
+                            'Major': 'background: rgba(239, 68, 68, 0.2); color: #DC2626;',
+                            'Minor': 'background: rgba(59, 130, 246, 0.2); color: #2563EB;',
+                            'Hidden': 'background: rgba(147, 51, 234, 0.2); color: #9333EA;'
+                        };
+                        return `
+                            <div class="card p-6 cursor-pointer" onclick="viewEntity('locations', '${location.id}')">
+                                <h3 class="text-2xl font-bold mb-2" style="color: #8B4513;">${location.name}</h3>
+                                <div class="flex gap-2 mb-3">
+                                    <div class="badge" style="background: rgba(139, 69, 19, 0.2); color: #8B4513;">🌍 ${world ? world.name : 'Unknown'}</div>
+                                    <div class="badge" style="${importanceColors[location.importance]}">${location.importance}</div>
+                                </div>
+                                <p class="text-sm mb-2"><strong>Geography:</strong> ${location.geography}</p>
+                                <p class="text-sm"><strong>Climate:</strong> ${location.climate}</p>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+
+        // Events
+        function renderEvents() {
+            const content = document.getElementById('mainContent');
+            
+            if (appData.events.length === 0) {
+                content.innerHTML = `
+                    <div class="empty-state">
+                        <div class="text-6xl mb-4">⚡</div>
+                        <h2 class="text-3xl font-bold mb-4">No Events Yet</h2>
+                        <p class="mb-6">Chronicle the significant moments that shape your world!</p>
+                        <button class="btn btn-primary" onclick="openCreateModal('events')">+ Create Event</button>
+                    </div>
+                `;
+                return;
+            }
+
+            content.innerHTML = `
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-4xl font-bold" style="color: #8B4513;">Events Timeline</h1>
+                    <button class="btn btn-primary" onclick="openCreateModal('events')">+ Create Event</button>
+                </div>
+                
+                <div class="card p-6">
+                    ${appData.events.map(event => {
+                        const world = getEntityById('worlds', event.world_id);
+                        const location = getEntityById('locations', event.location_id);
+                        return `
+                            <div class="timeline-item cursor-pointer" onclick="viewEntity('events', '${event.id}')">
+                                <div class="card p-4 mb-4">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <h3 class="text-xl font-bold" style="color: #8B4513;">${event.name}</h3>
+                                        <div class="text-sm" style="color: #A0522D;">${event.date}</div>
+                                    </div>
+                                    <div class="flex gap-2 mb-3">
+                                        <div class="badge" style="background: rgba(139, 69, 19, 0.2); color: #8B4513;">🌍 ${world ? world.name : 'Unknown'}</div>
+                                        ${location ? `<div class="badge" style="background: rgba(245, 158, 11, 0.2); color: #D97706;">📍 ${location.name}</div>` : ''}
+                                    </div>
+                                    <p class="mb-2">${event.description}</p>
+                                    <p class="text-sm" style="color: #6B6B6B;"><strong>Outcome:</strong> ${event.outcome}</p>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+
+        // Powers
+        function renderPowers() {
+            const content = document.getElementById('mainContent');
+            
+            if (appData.powers.length === 0) {
+                content.innerHTML = `
+                    <div class="empty-state">
+                        <div class="text-6xl mb-4">✨</div>
+                        <h2 class="text-3xl font-bold mb-4">No Powers Yet</h2>
+                        <p class="mb-6">Define the extraordinary abilities that exist in your world!</p>
+                        <button class="btn btn-primary" onclick="openCreateModal('powers')">+ Create Power</button>
+                    </div>
+                `;
+                return;
+            }
+
+            content.innerHTML = `
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-4xl font-bold" style="color: #8B4513;">Powers &amp; Abilities</h1>
+                    <button class="btn btn-primary" onclick="openCreateModal('powers')">+ Create Power</button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    ${appData.powers.map(power => {
+                        const world = getEntityById('worlds', power.world_id);
+                        return `
+                            <div class="card p-6 cursor-pointer" onclick="viewEntity('powers', '${power.id}')">
+                                <h3 class="text-2xl font-bold mb-2" style="color: #8B4513;">✨ ${power.name}</h3>
+                                <div class="badge mb-3" style="background: rgba(139, 69, 19, 0.2); color: #8B4513;">🌍 ${world ? world.name : 'Unknown'}</div>
+                                <p class="mb-2">${power.description}</p>
+                                <p class="text-sm mb-2" style="color: #6B6B6B;"><strong>Origin:</strong> ${power.origin}</p>
+                                <p class="text-sm" style="color: #6B6B6B;"><strong>Effects:</strong> ${power.effects}</p>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+
+        // Graph View
+        function renderGraph() {
+            const content = document.getElementById('mainContent');
+            content.innerHTML = `
+                <div class="mb-6">
+                    <h1 class="text-4xl font-bold mb-4" style="color: #8B4513;">Relationship Graph</h1>
+                    <div class="card p-4 mb-4">
+                        <h3 class="font-bold mb-2">Legend:</h3>
+                        <div class="flex flex-wrap gap-3">
+                            <div class="flex items-center gap-2">
+                                <div style="width: 20px; height: 20px; border-radius: 50%; background: #8B4513;"></div>
+                                <span>Worlds</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div style="width: 20px; height: 20px; border-radius: 50%; background: #3B82F6;"></div>
+                                <span>Characters</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div style="width: 20px; height: 20px; background: #10B981;"></div>
+                                <span>Lore</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div style="width: 20px; height: 20px; background: #F59E0B; transform: rotate(45deg);"></div>
+                                <span>Locations</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div style="width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 20px solid #EF4444;"></div>
+                                <span>Events</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div style="width: 20px; height: 20px; background: #8B5CF6; clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);"></div>
+                                <span>Powers</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card p-6" style="height: 600px; position: relative; overflow: hidden;">
+                    <canvas id="graphCanvas" style="width: 100%; height: 100%;"></canvas>
+                </div>
+            `;
+
+            setTimeout(() => renderGraphVisualization(), 100);
+        }
+
+        function renderGraphVisualization() {
+            const canvas = document.getElementById('graphCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+
+            const nodes = [];
+            const links = [];
+
+            // Create nodes for all entities
+            appData.worlds.forEach(world => {
+                nodes.push({ id: world.id, type: 'worlds', name: world.name, x: Math.random() * canvas.width, y: Math.random() * canvas.height, vx: 0, vy: 0 });
+            });
+
+            appData.characters.forEach(char => {
+                nodes.push({ id: char.id, type: 'characters', name: char.name, x: Math.random() * canvas.width, y: Math.random() * canvas.height, vx: 0, vy: 0 });
+                if (char.world_id) links.push({ source: char.id, target: char.world_id });
+            });
+
+            appData.lore.forEach(lore => {
+                nodes.push({ id: lore.id, type: 'lore', name: lore.title, x: Math.random() * canvas.width, y: Math.random() * canvas.height, vx: 0, vy: 0 });
+                if (lore.world_id) links.push({ source: lore.id, target: lore.world_id });
+            });
+
+            appData.locations.forEach(loc => {
+                nodes.push({ id: loc.id, type: 'locations', name: loc.name, x: Math.random() * canvas.width, y: Math.random() * canvas.height, vx: 0, vy: 0 });
+                if (loc.world_id) links.push({ source: loc.id, target: loc.world_id });
+            });
+
+            appData.events.forEach(event => {
+                nodes.push({ id: event.id, type: 'events', name: event.name, x: Math.random() * canvas.width, y: Math.random() * canvas.height, vx: 0, vy: 0 });
+                if (event.world_id) links.push({ source: event.id, target: event.world_id });
+            });
+
+            appData.powers.forEach(power => {
+                nodes.push({ id: power.id, type: 'powers', name: power.name, x: Math.random() * canvas.width, y: Math.random() * canvas.height, vx: 0, vy: 0 });
+                if (power.world_id) links.push({ source: power.id, target: power.world_id });
+            });
+
+            const colors = {
+                worlds: '#8B4513',
+                characters: '#3B82F6',
+                lore: '#10B981',
+                locations: '#F59E0B',
+                events: '#EF4444',
+                powers: '#8B5CF6'
+            };
+
+            const sizes = {
+                worlds: 15,
+                characters: 10,
+                lore: 8,
+                locations: 8,
+                events: 8,
+                powers: 8
+            };
+
+            // Simple force simulation
+            function simulate() {
+                // Apply forces
+                for (let i = 0; i < nodes.length; i++) {
+                    const node = nodes[i];
+                    
+                    // Repulsion from other nodes
+                    for (let j = 0; j < nodes.length; j++) {
+                        if (i !== j) {
+                            const other = nodes[j];
+                            const dx = node.x - other.x;
+                            const dy = node.y - other.y;
+                            const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+                            const force = 500 / (dist * dist);
+                            node.vx += (dx / dist) * force;
+                            node.vy += (dy / dist) * force;
+                        }
+                    }
+
+                    // Attraction to center
+                    const centerX = canvas.width / 2;
+                    const centerY = canvas.height / 2;
+                    node.vx += (centerX - node.x) * 0.001;
+                    node.vy += (centerY - node.y) * 0.001;
+
+                    // Apply velocity
+                    node.x += node.vx;
+                    node.y += node.vy;
+                    node.vx *= 0.9;
+                    node.vy *= 0.9;
+
+                    // Bounds
+                    node.x = Math.max(30, Math.min(canvas.width - 30, node.x));
+                    node.y = Math.max(30, Math.min(canvas.height - 30, node.y));
+                }
+
+                // Link attraction
+                links.forEach(link => {
+                    const source = nodes.find(n => n.id === link.source);
+                    const target = nodes.find(n => n.id === link.target);
+                    if (source && target) {
+                        const dx = target.x - source.x;
+                        const dy = target.y - source.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+                        const force = (dist - 100) * 0.01;
+                        source.vx += (dx / dist) * force;
+                        source.vy += (dy / dist) * force;
+                        target.vx -= (dx / dist) * force;
+                        target.vy -= (dy / dist) * force;
+                    }
+                });
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Draw links
+                ctx.strokeStyle = isDarkMode ? '#4A4A4A' : '#D4D4D4';
+                ctx.lineWidth = 2;
+                links.forEach(link => {
+                    const source = nodes.find(n => n.id === link.source);
+                    const target = nodes.find(n => n.id === link.target);
+                    if (source && target) {
+                        ctx.beginPath();
+                        ctx.moveTo(source.x, source.y);
+                        ctx.lineTo(target.x, target.y);
+                        ctx.stroke();
+                    }
+                });
+
+                // Draw nodes
+                nodes.forEach(node => {
+                    ctx.fillStyle = colors[node.type];
+                    const size = sizes[node.type];
+
+                    if (node.type === 'worlds' || node.type === 'characters') {
+                        ctx.beginPath();
+                        ctx.arc(node.x, node.y, size, 0, Math.PI * 2);
+                        ctx.fill();
+                    } else if (node.type === 'lore') {
+                        ctx.fillRect(node.x - size, node.y - size, size * 2, size * 2);
+                    } else if (node.type === 'locations') {
+                        ctx.save();
+                        ctx.translate(node.x, node.y);
+                        ctx.rotate(Math.PI / 4);
+                        ctx.fillRect(-size, -size, size * 2, size * 2);
+                        ctx.restore();
+                    } else if (node.type === 'events') {
+                        ctx.beginPath();
+                        ctx.moveTo(node.x, node.y - size);
+                        ctx.lineTo(node.x - size, node.y + size);
+                        ctx.lineTo(node.x + size, node.y + size);
+                        ctx.closePath();
+                        ctx.fill();
+                    } else if (node.type === 'powers') {
+                        // Star shape
+                        ctx.beginPath();
+                        for (let i = 0; i < 5; i++) {
+                            const angle = (i * 4 * Math.PI) / 5 - Math.PI / 2;
+                            const x = node.x + Math.cos(angle) * size;
+                            const y = node.y + Math.sin(angle) * size;
+                            if (i === 0) ctx.moveTo(x, y);
+                            else ctx.lineTo(x, y);
+                        }
+                        ctx.closePath();
+                        ctx.fill();
+                    }
+
+                    // Label
+                    ctx.fillStyle = isDarkMode ? '#E5E5E5' : '#2D2D2D';
+                    ctx.font = '12px Inter';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(node.name, node.x, node.y + size + 15);
+                });
+            }
+
+            function animate() {
+                simulate();
+                draw();
+                requestAnimationFrame(animate);
+            }
+
+            animate();
+
+            // Click handling
+            canvas.addEventListener('click', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                nodes.forEach(node => {
+                    const dist = Math.sqrt((x - node.x) ** 2 + (y - node.y) ** 2);
+                    if (dist < sizes[node.type] + 5) {
+                        viewEntity(node.type, node.id);
+                    }
+                });
+            });
+        }
+
+        // Search
+        function renderSearch() {
+            const content = document.getElementById('mainContent');
+            content.innerHTML = `
+                <h1 class="text-4xl font-bold mb-6" style="color: #8B4513;">Search</h1>
+                
+                <div class="card p-6 mb-6">
+                    <input type="text" class="input mb-4" placeholder="Search all entities..." oninput="performSearch(this.value)" id="searchInput">
+                    <div class="flex flex-wrap gap-2">
+                        <label class="flex items-center gap-2">
+                            <input type="checkbox" checked onchange="performSearch(document.getElementById('searchInput').value)" data-filter="worlds">
+                            <span>Worlds</span>
+                        </label>
+                        <label class="flex items-center gap-2">
+                            <input type="checkbox" checked onchange="performSearch(document.getElementById('searchInput').value)" data-filter="characters">
+                            <span>Characters</span>
+                        </label>
+                        <label class="flex items-center gap-2">
+                            <input type="checkbox" checked onchange="performSearch(document.getElementById('searchInput').value)" data-filter="lore">
+                            <span>Lore</span>
+                        </label>
+                        <label class="flex items-center gap-2">
+                            <input type="checkbox" checked onchange="performSearch(document.getElementById('searchInput').value)" data-filter="locations">
+                            <span>Locations</span>
+                        </label>
+                        <label class="flex items-center gap-2">
+                            <input type="checkbox" checked onchange="performSearch(document.getElementById('searchInput').value)" data-filter="events">
+                            <span>Events</span>
+                        </label>
+                        <label class="flex items-center gap-2">
+                            <input type="checkbox" checked onchange="performSearch(document.getElementById('searchInput').value)" data-filter="powers">
+                            <span>Powers</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="searchResults"></div>
+            `;
+        }
+
+        function performSearch(query) {
+            const resultsDiv = document.getElementById('searchResults');
+            const filters = Array.from(document.querySelectorAll('[data-filter]:checked')).map(cb => cb.dataset.filter);
+            
+            if (!query.trim()) {
+                resultsDiv.innerHTML = '<div class="empty-state"><p>Enter a search term to find entities</p></div>';
+                return;
+            }
+
+            const results = [];
+            const lowerQuery = query.toLowerCase();
+
+            if (filters.includes('worlds')) {
+                appData.worlds.forEach(world => {
+                    if (world.name.toLowerCase().includes(lowerQuery) || 
+                        world.description.toLowerCase().includes(lowerQuery) ||
+                        world.tags.toLowerCase().includes(lowerQuery)) {
+                        results.push({ type: 'worlds', entity: world });
+                    }
+                });
+            }
+
+            if (filters.includes('characters')) {
+                appData.characters.forEach(char => {
+                    if (char.name.toLowerCase().includes(lowerQuery) || 
+                        char.backstory.toLowerCase().includes(lowerQuery)) {
+                        results.push({ type: 'characters', entity: char });
+                    }
+                });
+            }
+
+            if (filters.includes('lore')) {
+                appData.lore.forEach(lore => {
+                    if (lore.title.toLowerCase().includes(lowerQuery) || 
+                        lore.content.toLowerCase().includes(lowerQuery)) {
+                        results.push({ type: 'lore', entity: lore });
+                    }
+                });
+            }
+
+            if (filters.includes('locations')) {
+                appData.locations.forEach(loc => {
+                    if (loc.name.toLowerCase().includes(lowerQuery) || 
+                        loc.geography.toLowerCase().includes(lowerQuery)) {
+                        results.push({ type: 'locations', entity: loc });
+                    }
+                });
+            }
+
+            if (filters.includes('events')) {
+                appData.events.forEach(event => {
+                    if (event.name.toLowerCase().includes(lowerQuery) || 
+                        event.description.toLowerCase().includes(lowerQuery)) {
+                        results.push({ type: 'events', entity: event });
+                    }
+                });
+            }
+
+            if (filters.includes('powers')) {
+                appData.powers.forEach(power => {
+                    if (power.name.toLowerCase().includes(lowerQuery) || 
+                        power.description.toLowerCase().includes(lowerQuery)) {
+                        results.push({ type: 'powers', entity: power });
+                    }
+                });
+            }
+
+            if (results.length === 0) {
+                resultsDiv.innerHTML = '<div class="empty-state"><p>No results found</p></div>';
+                return;
+            }
+
+            const typeIcons = {
+                worlds: '🌍',
+                characters: '👤',
+                lore: '📜',
+                locations: '📍',
+                events: '⚡',
+                powers: '✨'
+            };
+
+            const typeLabels = {
+                worlds: 'World',
+                characters: 'Character',
+                lore: 'Lore',
+                locations: 'Location',
+                events: 'Event',
+                powers: 'Power'
+            };
+
+            resultsDiv.innerHTML = `
+                <div class="mb-4" style="color: #8B4513;">
+                    <strong>${results.length}</strong> result${results.length !== 1 ? 's' : ''} found
+                </div>
+                <div class="grid grid-cols-1 gap-4">
+                    ${results.map(result => {
+                        const entity = result.entity;
+                        const name = entity.name || entity.title;
+                        const preview = entity.description || entity.backstory || entity.content || entity.geography || '';
+                        
+                        return `
+                            <div class="card p-4 cursor-pointer" onclick="viewEntity('${result.type}', '${entity.id}')">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <span class="text-2xl">${typeIcons[result.type]}</span>
+                                    <div>
+                                        <h3 class="text-xl font-bold" style="color: #8B4513;">${name}</h3>
+                                        <div class="badge" style="background: rgba(139, 69, 19, 0.2); color: #8B4513;">${typeLabels[result.type]}</div>
+                                    </div>
+                                </div>
+                                <p class="line-clamp-2">${preview}</p>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+
+        // View Entity Details
+        function viewEntity(type, id) {
+            const entity = getEntityById(type, id);
+            if (!entity) return;
+
+            let content = '';
+
+            switch(type) {
+                case 'worlds':
+                    const isFavWorld = isFavorite('worlds', id);
+                    content = `
+                        <div class="mb-4">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="text-3xl font-bold">${entity.name}</h3>
+                                <button class="text-3xl" onclick="toggleFavorite('worlds', '${id}'); viewEntity('worlds', '${id}');" style="cursor: pointer; background: none; border: none;">${isFavWorld ? '⭐' : '☆'}</button>
+                            </div>
+                            <div class="badge mb-4" style="background: rgba(139, 69, 19, 0.2); color: #8B4513;">${entity.type}</div>
+                            <p class="mb-4">${entity.description}</p>
+                            <div class="mb-4">
+                                <strong>Tags:</strong>
+                                <div class="flex flex-wrap gap-2 mt-2">
+                                    ${entity.tags.split(',').map(tag => `<span class="entity-tag">${tag.trim()}</span>`).join('')}
+                                </div>
+                            </div>
+                            <div class="text-sm mb-2" style="color: #6B6B6B;">
+                                <strong>Created:</strong> ${new Date(entity.createdAt).toLocaleDateString()}
+                            </div>
+                            <div class="text-sm mb-4" style="color: #6B6B6B;">
+                                <strong>Last Updated:</strong> ${new Date(entity.updatedAt).toLocaleDateString()}
+                            </div>
+                        </div>
+                        <div class="flex gap-3">
+                            <button class="btn btn-primary" onclick="openEditModal('worlds', '${id}')">Edit</button>
+                            <button class="btn btn-secondary" onclick="deleteEntity('worlds', '${id}')">Delete</button>
+                        </div>
+                    `;
+                    break;
+
+                case 'characters':
+                    const charWorld = getEntityById('worlds', entity.world_id);
+                    const isFavChar = isFavorite('characters', id);
+                    content = `
+                        <div class="mb-4">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="text-3xl font-bold">${entity.name}</h3>
+                                <button class="text-3xl" onclick="toggleFavorite('characters', '${id}'); viewEntity('characters', '${id}');" style="cursor: pointer; background: none; border: none;">${isFavChar ? '⭐' : '☆'}</button>
+                            </div>
+                            <div class="text-lg mb-2" style="color: #A0522D;">${entity.role}</div>
+                            <div class="badge mb-4" style="background: rgba(139, 69, 19, 0.2); color: #8B4513;">🌍 ${charWorld ? charWorld.name : 'Unknown'}</div>
+                            <p class="mb-3"><strong>Backstory:</strong> ${entity.backstory}</p>
+                            <p class="mb-3"><strong>Appearance:</strong> ${entity.appearance}</p>
+                            <p class="mb-3"><strong>Affiliations:</strong> ${entity.affiliations}</p>
+                            ${entity.power_ids && entity.power_ids.length > 0 ? `
+                                <div class="mb-3">
+                                    <strong>Powers:</strong>
+                                    <div class="flex flex-wrap gap-2 mt-2">
+                                        ${entity.power_ids.map(pid => {
+                                            const power = getEntityById('powers', pid);
+                                            return power ? `<span class="entity-tag" onclick="viewEntity('powers', '${pid}')" style="cursor: pointer;">✨ ${power.name}</span>` : '';
+                                        }).join('')}
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                        <div class="flex gap-3">
+                            <button class="btn btn-primary" onclick="openEditModal('characters', '${id}')">Edit</button>
+                            <button class="btn btn-secondary" onclick="deleteEntity('characters', '${id}')">Delete</button>
+                        </div>
+                    `;
+                    break;
+
+                case 'lore':
+                    const loreWorld = getEntityById('worlds', entity.world_id);
+                    const isFavLore = isFavorite('lore', id);
+                    content = `
+                        <div class="mb-4">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="text-3xl font-bold">${entity.title}</h3>
+                                <button class="text-3xl" onclick="toggleFavorite('lore', '${id}'); viewEntity('lore', '${id}');" style="cursor: pointer; background: none; border: none;">${isFavLore ? '⭐' : '☆'}</button>
+                            </div>
+                            <div class="flex gap-2 mb-4">
+                                <div class="badge" style="background: rgba(34, 197, 94, 0.2); color: #059669;">${entity.type}</div>
+                                <div class="badge" style="background: rgba(139, 69, 19, 0.2); color: #8B4513;">🌍 ${loreWorld ? loreWorld.name : 'Unknown'}</div>
+                            </div>
+                            <div class="p-4 rounded-lg mb-4" style="background: rgba(139, 69, 19, 0.05); white-space: pre-wrap;">
+                                ${entity.content}
+                            </div>
+                        </div>
+                        <div class="flex gap-3">
+                            <button class="btn btn-primary" onclick="openEditModal('lore', '${id}')">Edit</button>
+                            <button class="btn btn-secondary" onclick="deleteEntity('lore', '${id}')">Delete</button>
+                        </div>
+                    `;
+                    break;
+
+                case 'locations':
+                    const locWorld = getEntityById('worlds', entity.world_id);
+                    const isFavLoc = isFavorite('locations', id);
+                    content = `
+                        <div class="mb-4">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="text-3xl font-bold">${entity.name}</h3>
+                                <button class="text-3xl" onclick="toggleFavorite('locations', '${id}'); viewEntity('locations', '${id}');" style="cursor: pointer; background: none; border: none;">${isFavLoc ? '⭐' : '☆'}</button>
+                            </div>
+                            <div class="flex gap-2 mb-4">
+                                <div class="badge" style="background: rgba(139, 69, 19, 0.2); color: #8B4513;">🌍 ${locWorld ? locWorld.name : 'Unknown'}</div>
+                                <div class="badge" style="background: rgba(239, 68, 68, 0.2); color: #DC2626;">${entity.importance}</div>
+                            </div>
+                            <p class="mb-3"><strong>Geography:</strong> ${entity.geography}</p>
+                            <p class="mb-3"><strong>Climate:</strong> ${entity.climate}</p>
+                        </div>
+                        <div class="flex gap-3">
+                            <button class="btn btn-primary" onclick="openEditModal('locations', '${id}')">Edit</button>
+                            <button class="btn btn-secondary" onclick="deleteEntity('locations', '${id}')">Delete</button>
+                        </div>
+                    `;
+                    break;
+
+                case 'events':
+                    const eventWorld = getEntityById('worlds', entity.world_id);
+                    const eventLoc = getEntityById('locations', entity.location_id);
+                    const isFavEvent = isFavorite('events', id);
+                    content = `
+                        <div class="mb-4">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="text-3xl font-bold">${entity.name}</h3>
+                                <button class="text-3xl" onclick="toggleFavorite('events', '${id}'); viewEntity('events', '${id}');" style="cursor: pointer; background: none; border: none;">${isFavEvent ? '⭐' : '☆'}</button>
+                            </div>
+                            <div class="text-lg mb-3" style="color: #A0522D;">${entity.date}</div>
+                            <div class="flex gap-2 mb-4">
+                                <div class="badge" style="background: rgba(139, 69, 19, 0.2); color: #8B4513;">🌍 ${eventWorld ? eventWorld.name : 'Unknown'}</div>
+                                ${eventLoc ? `<div class="badge" style="background: rgba(245, 158, 11, 0.2); color: #D97706;">📍 ${eventLoc.name}</div>` : ''}
+                            </div>
+                            <p class="mb-3"><strong>Description:</strong> ${entity.description}</p>
+                            <p class="mb-3"><strong>Outcome:</strong> ${entity.outcome}</p>
+                        </div>
+                        <div class="flex gap-3">
+                            <button class="btn btn-primary" onclick="openEditModal('events', '${id}')">Edit</button>
+                            <button class="btn btn-secondary" onclick="deleteEntity('events', '${id}')">Delete</button>
+                        </div>
+                    `;
+                    break;
+
+                case 'powers':
+                    const powerWorld = getEntityById('worlds', entity.world_id);
+                    const isFavPower = isFavorite('powers', id);
+                    content = `
+                        <div class="mb-4">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="text-3xl font-bold">✨ ${entity.name}</h3>
+                                <button class="text-3xl" onclick="toggleFavorite('powers', '${id}'); viewEntity('powers', '${id}');" style="cursor: pointer; background: none; border: none;">${isFavPower ? '⭐' : '☆'}</button>
+                            </div>
+                            <div class="badge mb-4" style="background: rgba(139, 69, 19, 0.2); color: #8B4513;">🌍 ${powerWorld ? powerWorld.name : 'Unknown'}</div>
+                            <p class="mb-3"><strong>Description:</strong> ${entity.description}</p>
+                            <p class="mb-3"><strong>Origin:</strong> ${entity.origin}</p>
+                            <p class="mb-3"><strong>Effects:</strong> ${entity.effects}</p>
+                            ${entity.character_ids && entity.character_ids.length > 0 ? `
+                                <div class="mb-3">
+                                    <strong>Users:</strong>
+                                    <div class="flex flex-wrap gap-2 mt-2">
+                                        ${entity.character_ids.map(cid => {
+                                            const char = getEntityById('characters', cid);
+                                            return char ? `<span class="entity-tag" onclick="viewEntity('characters', '${cid}')" style="cursor: pointer;">👤 ${char.name}</span>` : '';
+                                        }).join('')}
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                        <div class="flex gap-3">
+                            <button class="btn btn-primary" onclick="openEditModal('powers', '${id}')">Edit</button>
+                            <button class="btn btn-secondary" onclick="deleteEntity('powers', '${id}')">Delete</button>
+                        </div>
+                    `;
+                    break;
+            }
+
+            showModal('View Details', content);
+        }
+
+        // Create/Edit Modals
+        function openCreateModal(type) {
+            const formContent = generateForm(type);
+            const modal = showModal(`Create ${type.slice(0, -1)}`, `
+                ${formContent}
+                <div class="flex justify-end gap-3 mt-6">
+                    <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">Cancel</button>
+                    <button class="btn btn-primary" onclick="saveEntity('${type}', null)">Create</button>
+                </div>
+            `);
+        }
+
+        function openEditModal(type, id) {
+            const entity = getEntityById(type, id);
+            if (!entity) return;
+
+            const formContent = generateForm(type, entity);
+            const modal = showModal(`Edit ${type.slice(0, -1)}`, `
+                ${formContent}
+                <div class="flex justify-end gap-3 mt-6">
+                    <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">Cancel</button>
+                    <button class="btn btn-primary" onclick="saveEntity('${type}', '${id}')">Save</button>
+                </div>
+            `);
+        }
+
+        function generateForm(type, entity = null) {
+            let html = '';
+
+            switch(type) {
+                case 'worlds':
+                    html = `
+                        <div class="mb-4">
+                            <label class="block mb-2 font-bold">Name *</label>
+                            <input type="text" id="form_name" class="input" value="${entity ? entity.name : ''}" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block mb-2 font-bold">Description</label>
+                            <textarea id="form_description" class="textarea" rows="4">${entity ? entity.description : ''}</textarea>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block mb-2 font-bold">Type</label>
+                            <select id="form_type" class="select">
+                                <option value="Fantasy" ${entity && entity.type === 'Fantasy' ? 'selected' : ''}>Fantasy</option>
+                                <option value="Sci-Fi" ${entity && entity.type === 'Sci-Fi' ? 'selected' : ''}>Sci-Fi</option>
+                                <option value="Horror" ${entity && entity.type === 'Horror' ? 'selected' : ''}>Horror</option>
+                                <option value="Historical" ${entity && entity.type === 'Historical' ? 'selected' : ''}>Historical</option>
+                                <option value="Modern" ${entity && entity.type === 'Modern' ? 'selected' : ''}>Modern</option>
+                                <option value="Post-Apocalyptic" ${entity && entity.type === 'Post-Apocalyptic' ? 'selected' : ''}>Post-Apocalyptic</option>
+                                <option value="Other" ${entity && entity.type === 'Other' ? 'selected' : ''}>Other</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block mb-2 font-bold">Tags (comma-separated)</label>
+                            <input type="text" id="form_tags" class="input" value="${entity ? entity.tags : ''}">
+                        </div>
+                        <div class="mb-4">
+                            <label class="block mb-2 font-bold">Image URL (optional)</label>
+                            <input type="text" id="form_image" class="input" value="${entity ? entity.image : ''}">
+                        </div>
+                    `;
+                    break;
+
+                case 'characters':
+                    html = `
+                        <div class="mb-4">
+                            <label class="block mb-2 font-bold">Name *</label>
+                            <input type="text" id="form_name" class="input" value="${entity ? entity.name : ''}" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block mb-2 font-bold">Role/Title</label>
+                            <input type="text" id="form_role" class="input" value="${entity ? entity.role : ''}">
+                        </div>
+                        <div class="mb-4">
+                            <label class="block mb-2 font-bold">Backstory</label>
+                            <textarea id="form_backstory" class="textarea" rows="4">${entity ? entity.backstory : ''}</textarea>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block mb-2 font-bold">Appearance</label>
+                            <textarea id="form_appearance" class="textarea" rows="3">${entity ? entity.appearance : ''}</textarea>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block mb-2 font-bold">Affiliations</label>
+                            <input type="text" id="form_affiliations" class="input" value="${entity ? entity.affiliations : ''}">
+                        </div>
+                        <div class="mb-4">
+                            <label class="block mb-2 font-bold">World</label>
+                            <select id="form_world_id" class="select">
+                                <option value="">Select World</option>
+                                ${appData.worlds.map(w => `<option value="${w.id}" ${entity && entity.world_id === w.id ? 'selected' : ''}>${w.name}</option>`).join('')}
+                            </select>
+                        </div>
+                    `;
+                    break;
+
+                case 'lore':
+                    html = `
+                        <div class="mb-4">
+                            <label class="block mb-2 font-bold">Title *</label>
+                            <input type="text" id="form_title" class="input" value="${entity ? entity.title : ''}" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block mb-2 font-bold">Type</label>
+                            <select id="form_type" class="select">
+                                <option value="Myth" ${entity && entity.type === 'Myth' ? 'selected' : ''}>Myth</option>
+                                <option value="History" ${entity && entity.type === 'History' ? 'selected' : ''}>History</option>
+                                <option value="Legend" ${entity && entity.type === 'Legend' ? 'selected' : ''}>Legend</option>
+                                <option value="Religion" ${entity && entity.type === 'Religion' ? 'selected' : ''}>Religion</option>
+                                <option value="Culture" ${entity && entity.type === 'Culture' ? 'selected' : ''}>Culture</option>
+                                <option value="Other" ${entity && entity.type === 'Other' ? 'selected' : ''}>Other</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block mb-2 font-bold">Content</label>
+                            <div class="markdown-toolbar mb-2">
+                                <button type="button" onclick="insertMarkdown('**', '**')"><strong>B</strong></button>
+                                <button type="button" onclick="insertMarkdown('*', '*')"><em>I</em></button>
+                                <button type="button" onclick="insertMarkdown('## ', '')">H2</button>
+                                <button type="button" onclick="insertMarkdown('### ', '')">H3</button>
+                            </div>
+                            <textarea id="form_content" class="textarea" rows="6">${entity ? entity.content : ''}</textarea>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block mb-2 font-bold">World</label>
+                            <select id="form_world_id" class="select">
+                                <option value="">Select World</option>
+                                ${appData.worlds.map(w => `<option value="${w.id}" ${entity && entity.world_id === w.id ? 'selected' : ''}>${w.name}</option>`).join('')}
+                            </select>
+                        </div>
+                    `;
+                    break;
+
+                case 'locations':
+                    html = `
+                        <div class="mb-4">
+                            <label class="block mb-2 font-bold">Name *</label>
+                            <input type="text" id="form_name" class="input" value="${entity ? entity.name : ''}" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block mb-2 font-bold">Geography</label>
+                            <textarea id="form_geography" class="textarea" rows="3">${entity ? entity.geography : ''}</textarea>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block mb-2 font-bold">Climate</label>
+                            <input type="text" id="form_climate" class="input" value="${entity ? entity.climate : ''}">
+                        </div>
+                        <div class="mb-4">
+                            <label class="block mb-2 font-bold">Importance</label>
+                            <select id="form_importance" class="select">
+                                <option value="Major" ${entity && entity.importance === 'Major' ? 'selected' : ''}>Major</option>
+                                <option value="Minor" ${entity && entity.importance === 'Minor' ? 'selected' : ''}>Minor</option>
+                                <option value="Hidden" ${entity && entity.importance === 'Hidden' ? 'selected' : ''}>Hidden</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block mb-2 font-bold">World</label>
+                            <select id="form_world_id" class="select">
+                                <option value="">Select World</option>
+                                ${appData.worlds.map(w => `<option value="${w.id}" ${entity && entity.world_id === w.id ? 'selected' : ''}>${w.name}</option>`).join('')}
+                            </select>
+                        </div>
+                    `;
+                    break;
+
+                case 'events':
+                    html = `
+                        <div class="mb-4">
+                            <label class="block mb-2 font-bold">Event Name *</label>
+                            <input type="text" id="form_name" class="input" value="${entity ? entity.name : ''}" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block mb-2 font-bold">Date/Time Period</label>
+                            <input type="text" id="form_date" class="input" value="${entity ? entity.date : ''}">
+                        </div>
+                        <div class="mb-4">
+                            <label class="block mb-2 font-bold">Description</label>
+                            <textarea id="form_description" class="textarea" rows="4">${entity ? entity.description : ''}</textarea>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block mb-2 font-bold">Outcome</label>
+                            <textarea id="form_outcome" class="textarea" rows="3">${entity ? entity.outcome : ''}</textarea>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block mb-2 font-bold">World</label>
+                            <select id="form_world_id" class="select">
+                                <option value="">Select World</option>
+                                ${appData.worlds.map(w => `<option value="${w.id}" ${entity && entity.world_id === w.id ? 'selected' : ''}>${w.name}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block mb-2 font-bold">Location</label>
+                            <select id="form_location_id" class="select">
+                                <option value="">Select Location</option>
+                                ${appData.locations.map(l => `<option value="${l.id}" ${entity && entity.location_id === l.id ? 'selected' : ''}>${l.name}</option>`).join('')}
+                            </select>
+                        </div>
+                    `;
+                    break;
+
+                case 'powers':
+                    html = `
+                        <div class="mb-4">
+                            <label class="block mb-2 font-bold">Power Name *</label>
+                            <input type="text" id="form_name" class="input" value="${entity ? entity.name : ''}" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block mb-2 font-bold">Description</label>
+                            <textarea id="form_description" class="textarea" rows="3">${entity ? entity.description : ''}</textarea>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block mb-2 font-bold">Origin</label>
+                            <input type="text" id="form_origin" class="input" value="${entity ? entity.origin : ''}">
+                        </div>
+                        <div class="mb-4">
+                            <label class="block mb-2 font-bold">Effects</label>
+                            <textarea id="form_effects" class="textarea" rows="3">${entity ? entity.effects : ''}</textarea>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block mb-2 font-bold">World</label>
+                            <select id="form_world_id" class="select">
+                                <option value="">Select World</option>
+                                ${appData.worlds.map(w => `<option value="${w.id}" ${entity && entity.world_id === w.id ? 'selected' : ''}>${w.name}</option>`).join('')}
+                            </select>
+                        </div>
+                    `;
+                    break;
+            }
+
+            return html;
+        }
+
+        function insertMarkdown(before, after) {
+            const textarea = document.getElementById('form_content');
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value;
+            const selectedText = text.substring(start, end);
+            const newText = text.substring(0, start) + before + selectedText + after + text.substring(end);
+            textarea.value = newText;
+            textarea.focus();
+            textarea.setSelectionRange(start + before.length, end + before.length);
+        }
+
+        function saveEntity(type, id) {
+            const isEdit = id !== null;
+            let entity = {};
+
+            // Collect form data based on type
+            switch(type) {
+                case 'worlds':
+                    entity = {
+                        id: isEdit ? id : generateId('w'),
+                        name: document.getElementById('form_name').value,
+                        description: document.getElementById('form_description').value,
+                        type: document.getElementById('form_type').value,
+                        tags: document.getElementById('form_tags').value,
+                        image: document.getElementById('form_image').value,
+                        createdAt: isEdit ? getEntityById(type, id).createdAt : new Date().toISOString(),
+                        updatedAt: new Date().toISOString(),
+                        createdBy: isEdit ? getEntityById(type, id).createdBy : (currentUser ? currentUser.id : 'u1')
+                    };
+                    break;
+
+                case 'characters':
+                    entity = {
+                        id: isEdit ? id : generateId('c'),
+                        name: document.getElementById('form_name').value,
+                        role: document.getElementById('form_role').value,
+                        backstory: document.getElementById('form_backstory').value,
+                        appearance: document.getElementById('form_appearance').value,
+                        affiliations: document.getElementById('form_affiliations').value,
+                        world_id: document.getElementById('form_world_id').value,
+                        event_ids: isEdit ? getEntityById(type, id).event_ids : [],
+                        power_ids: isEdit ? getEntityById(type, id).power_ids : [],
+                        createdAt: isEdit ? getEntityById(type, id).createdAt : new Date().toISOString(),
+                        updatedAt: new Date().toISOString(),
+                        createdBy: isEdit ? getEntityById(type, id).createdBy : (currentUser ? currentUser.id : 'u1')
+                    };
+                    break;
+
+                case 'lore':
+                    entity = {
+                        id: isEdit ? id : generateId('l'),
+                        title: document.getElementById('form_title').value,
+                        type: document.getElementById('form_type').value,
+                        content: document.getElementById('form_content').value,
+                        world_id: document.getElementById('form_world_id').value,
+                        character_ids: isEdit ? getEntityById(type, id).character_ids : [],
+                        location_ids: isEdit ? getEntityById(type, id).location_ids : [],
+                        createdAt: isEdit ? getEntityById(type, id).createdAt : new Date().toISOString(),
+                        updatedAt: new Date().toISOString(),
+                        createdBy: isEdit ? getEntityById(type, id).createdBy : (currentUser ? currentUser.id : 'u1')
+                    };
+                    break;
+
+                case 'locations':
+                    entity = {
+                        id: isEdit ? id : generateId('loc'),
+                        name: document.getElementById('form_name').value,
+                        geography: document.getElementById('form_geography').value,
+                        climate: document.getElementById('form_climate').value,
+                        importance: document.getElementById('form_importance').value,
+                        world_id: document.getElementById('form_world_id').value,
+                        character_ids: isEdit ? getEntityById(type, id).character_ids : [],
+                        event_ids: isEdit ? getEntityById(type, id).event_ids : [],
+                        createdAt: isEdit ? getEntityById(type, id).createdAt : new Date().toISOString(),
+                        updatedAt: new Date().toISOString(),
+                        createdBy: isEdit ? getEntityById(type, id).createdBy : (currentUser ? currentUser.id : 'u1')
+                    };
+                    break;
+
+                case 'events':
+                    entity = {
+                        id: isEdit ? id : generateId('e'),
+                        name: document.getElementById('form_name').value,
+                        date: document.getElementById('form_date').value,
+                        description: document.getElementById('form_description').value,
+                        outcome: document.getElementById('form_outcome').value,
+                        world_id: document.getElementById('form_world_id').value,
+                        location_id: document.getElementById('form_location_id').value,
+                        character_ids: isEdit ? getEntityById(type, id).character_ids : [],
+                        createdAt: isEdit ? getEntityById(type, id).createdAt : new Date().toISOString(),
+                        updatedAt: new Date().toISOString(),
+                        createdBy: isEdit ? getEntityById(type, id).createdBy : (currentUser ? currentUser.id : 'u1')
+                    };
+                    break;
+
+                case 'powers':
+                    entity = {
+                        id: isEdit ? id : generateId('p'),
+                        name: document.getElementById('form_name').value,
+                        description: document.getElementById('form_description').value,
+                        origin: document.getElementById('form_origin').value,
+                        effects: document.getElementById('form_effects').value,
+                        world_id: document.getElementById('form_world_id').value,
+                        character_ids: isEdit ? getEntityById(type, id).character_ids : [],
+                        createdAt: isEdit ? getEntityById(type, id).createdAt : new Date().toISOString(),
+                        updatedAt: new Date().toISOString(),
+                        createdBy: isEdit ? getEntityById(type, id).createdBy : (currentUser ? currentUser.id : 'u1')
+                    };
+                    break;
+            }
+
+            // Validate required fields
+            if (type === 'worlds' && !entity.name) {
+                alert('Name is required');
+                return;
+            }
+            if ((type === 'characters' || type === 'locations' || type === 'events' || type === 'powers') && !entity.name) {
+                alert('Name is required');
+                return;
+            }
+            if (type === 'lore' && !entity.title) {
+                alert('Title is required');
+                return;
+            }
+
+            // Save or update
+            if (isEdit) {
+                const index = appData[type].findIndex(e => e.id === id);
+                appData[type][index] = entity;
+                logActivity(type.slice(0, -1), 'updated', entity.id, entity.name || entity.title);
+                showToast(`${type.slice(0, -1)} updated successfully!`);
+            } else {
+                appData[type].push(entity);
+                logActivity(type.slice(0, -1), 'created', entity.id, entity.name || entity.title);
+                showToast(`${type.slice(0, -1)} created successfully!`);
+            }
+
+            // Close modal and refresh
+            document.querySelector('.modal').remove();
+            renderPage();
+        }
+
+        function deleteEntity(type, id) {
+            const entity = getEntityById(type, id);
+            const name = entity.name || entity.title;
+            
+            if (confirm(`Are you sure you want to delete "${name}"?`)) {
+                appData[type] = appData[type].filter(e => e.id !== id);
+                logActivity(type.slice(0, -1), 'deleted', id, name);
+                showToast(`${type.slice(0, -1)} deleted successfully!`);
+                document.querySelector('.modal').remove();
+                renderPage();
+            }
+        }
+
+        // Authentication Functions
+        function showAuthScreen() {
+            document.getElementById('authScreen').style.display = 'flex';
+            document.getElementById('topbar').style.display = 'none';
+            document.getElementById('sidebar').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'none';
+            document.getElementById('footer').style.display = 'none';
+        }
+
+        function hideAuthScreen() {
+            document.getElementById('authScreen').style.display = 'none';
+            document.getElementById('topbar').style.display = 'flex';
+            document.getElementById('sidebar').style.display = 'block';
+            document.getElementById('mainContent').style.display = 'block';
+            document.getElementById('footer').style.display = 'block';
+        }
+
+        function toggleAuthMode() {
+            isLoginMode = !isLoginMode;
+            const title = document.getElementById('authTitle');
+            const subtitle = document.getElementById('authSubtitle');
+            const emailGroup = document.getElementById('emailGroup');
+            const confirmPasswordGroup = document.getElementById('confirmPasswordGroup');
+            const authButton = document.getElementById('authButton');
+            const toggleText = document.getElementById('authToggleText');
+            const toggleLink = document.getElementById('authToggleLink');
+            const passwordStrength = document.getElementById('passwordStrength');
+            const errorMessage = document.getElementById('errorMessage');
+
+            errorMessage.classList.remove('show');
+            document.getElementById('authForm').reset();
+
+            if (isLoginMode) {
+                title.textContent = 'Welcome Back';
+                subtitle.textContent = 'Sign in to continue your worldbuilding journey';
+                emailGroup.style.display = 'none';
+                confirmPasswordGroup.style.display = 'none';
+                passwordStrength.classList.remove('show');
+                authButton.textContent = 'Sign In';
+                toggleText.textContent = 'New user?';
+                toggleLink.textContent = 'Register here';
+                document.getElementById('email').removeAttribute('required');
+                document.getElementById('confirmPassword').removeAttribute('required');
+                document.getElementById('testAccountsInfo').style.display = 'block';
+            } else {
+                title.textContent = 'Create Account';
+                subtitle.textContent = 'Join Trufflex and start building your worlds';
+                emailGroup.style.display = 'block';
+                confirmPasswordGroup.style.display = 'block';
+                authButton.textContent = 'Register';
+                toggleText.textContent = 'Already have account?';
+                toggleLink.textContent = 'Login here';
+                document.getElementById('email').setAttribute('required', 'required');
+                document.getElementById('confirmPassword').setAttribute('required', 'required');
+                document.getElementById('testAccountsInfo').style.display = 'none';
+            }
+        }
+
+        function checkPasswordStrength() {
+            if (isLoginMode) return;
+
+            const password = document.getElementById('password').value;
+            const strengthBar = document.getElementById('passwordStrengthBar');
+            const strengthContainer = document.getElementById('passwordStrength');
+
+            if (!password) {
+                strengthContainer.classList.remove('show');
+                return;
+            }
+
+            strengthContainer.classList.add('show');
+
+            let strength = 0;
+            if (password.length >= 8) strength++;
+            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^a-zA-Z0-9]/.test(password)) strength++;
+
+            strengthBar.className = 'password-strength-bar';
+            if (strength <= 1) {
+                strengthBar.classList.add('weak');
+            } else if (strength <= 3) {
+                strengthBar.classList.add('medium');
+            } else {
+                strengthBar.classList.add('strong');
+            }
+        }
+
+        function handleAuth(event) {
+            event.preventDefault();
+            const errorMessage = document.getElementById('errorMessage');
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const authButton = document.getElementById('authButton');
+
+            errorMessage.classList.remove('show');
+
+            if (isLoginMode) {
+                // LOGIN: Search in persistent userDatabase
+                console.log('🔍 Login attempt:', username);
+                const user = userDatabase.find(u => 
+                    (u.username === username || u.email === username) && u.password === password
+                );
+                
+                if (user) {
+                    // Create active session
+                    currentUser = { ...user };
+                    activeSession = { ...user, loginTime: Date.now() };
+                    lastActivityTime = Date.now();
+                    
+                    authButton.innerHTML = '<span class="loading-spinner"></span>';
+                    setTimeout(() => {
+                        hideAuthScreen();
+                        updateUserDisplay();
+                        renderDashboard();
+                        showToast(`Welcome back, ${user.username}!`);
+                        authButton.textContent = 'Sign In';
+                        console.log('✅ Login successful:', user.username);
+                        console.log('💾 Session created. Will persist during browser tab lifetime.');
+                        console.log('🔄 You can now logout and login again with the same credentials!');
+                    }, 800);
+                } else {
+                    errorMessage.textContent = 'Invalid username/email or password';
+                    errorMessage.classList.add('show');
+                    console.log('❌ Login failed');
+                    console.log('📋 Available test accounts:');
+                    console.log('   - storyteller / demo123');
+                    console.log('   - gamemaster / demo456');
+                }
+            } else {
+                // REGISTRATION: Add to persistent userDatabase
+                const email = document.getElementById('email').value.trim();
+                const confirmPassword = document.getElementById('confirmPassword').value;
+
+                console.log('📝 Registration attempt:', username);
+
+                // Validation
+                if (!username || username.length < 3) {
+                    errorMessage.textContent = 'Username must be at least 3 characters';
+                    errorMessage.classList.add('show');
+                    return;
+                }
+
+                if (userDatabase.find(u => u.username.toLowerCase() === username.toLowerCase())) {
+                    errorMessage.textContent = 'Username already exists';
+                    errorMessage.classList.add('show');
+                    return;
+                }
+
+                if (!email || !email.includes('@')) {
+                    errorMessage.textContent = 'Valid email is required';
+                    errorMessage.classList.add('show');
+                    return;
+                }
+
+                if (userDatabase.find(u => u.email.toLowerCase() === email.toLowerCase())) {
+                    errorMessage.textContent = 'Email already registered';
+                    errorMessage.classList.add('show');
+                    return;
+                }
+
+                if (password !== confirmPassword) {
+                    errorMessage.textContent = 'Passwords do not match';
+                    errorMessage.classList.add('show');
+                    return;
+                }
+
+                if (password.length < 6) {
+                    errorMessage.textContent = 'Password must be at least 6 characters';
+                    errorMessage.classList.add('show');
+                    return;
+                }
+
+                // Create new user permanently in database
+                const newUser = {
+                    id: 'u' + Date.now(),
+                    username,
+                    email,
+                    password,
+                    createdAt: new Date().toISOString()
+                };
+                
+                // Add to persistent userDatabase (survives logout)
+                userDatabase.push(newUser);
+                
+                // Create active session
+                currentUser = { ...newUser };
+                activeSession = { ...newUser, loginTime: Date.now() };
+                lastActivityTime = Date.now();
+
+                authButton.innerHTML = '<span class="loading-spinner"></span>';
+                setTimeout(() => {
+                    hideAuthScreen();
+                    updateUserDisplay();
+                    renderDashboard();
+                    showToast(`Welcome to Trufflex, ${username}!`);
+                    authButton.textContent = 'Register';
+                    console.log('✅ Registration successful!');
+                    console.log('💾 User added to database:', username);
+                    console.log('📊 Total users:', userDatabase.length);
+                    console.log('🔄 You can logout and login again with:', username, '/', password);
+                }, 800);
+            }
+        }
+
+        function updateUserDisplay() {
+            if (currentUser) {
+                const usernameDisplay = document.getElementById('usernameDisplay');
+                const userAvatar = document.getElementById('userAvatar');
+                usernameDisplay.textContent = currentUser.username;
+                
+                // Display avatar emoji or initial
+                if (currentUser.profile && currentUser.profile.avatar) {
+                    userAvatar.textContent = currentUser.profile.avatar;
+                } else {
+                    userAvatar.textContent = currentUser.username.charAt(0).toUpperCase();
+                }
+                
+                // Apply user theme preference
+                if (currentUser.profile && currentUser.profile.theme === 'dark') {
+                    if (!isDarkMode) toggleDarkMode();
+                } else if (currentUser.profile && currentUser.profile.theme === 'light') {
+                    if (isDarkMode) toggleDarkMode();
+                }
+            }
+        }
+
+        // Activity logging function
+        function logActivity(type, action, entityId, entityName) {
+            if (!currentUser) return;
+            activityLog.push({
+                timestamp: new Date().toISOString(),
+                userId: currentUser.id,
+                type: type,
+                action: action,
+                entityId: entityId,
+                entityName: entityName
+            });
+            updateUserStats();
+        }
+
+        // Update user stats
+        function updateUserStats() {
+            if (!currentUser) return;
+            currentUser.stats = {
+                totalWorlds: appData.worlds.filter(w => w.createdBy === currentUser.id).length,
+                totalCharacters: appData.characters.filter(c => c.createdBy === currentUser.id).length,
+                totalLore: appData.lore.filter(l => l.createdBy === currentUser.id).length,
+                totalLocations: appData.locations.filter(l => l.createdBy === currentUser.id).length,
+                totalEvents: appData.events.filter(e => e.createdBy === currentUser.id).length,
+                totalPowers: appData.powers.filter(p => p.createdBy === currentUser.id).length
+            };
+        }
+
+        // Toggle favorite
+        function toggleFavorite(type, entityId) {
+            if (!currentUser) return;
+            const userId = currentUser.id;
+            if (!favorites[userId]) favorites[userId] = [];
+            
+            const index = favorites[userId].findIndex(f => f.type === type && f.entityId === entityId);
+            if (index > -1) {
+                favorites[userId].splice(index, 1);
+                showToast('Removed from favorites');
+            } else {
+                favorites[userId].push({ type, entityId, addedAt: new Date().toISOString() });
+                showToast('Added to favorites');
+            }
+            renderPage();
+        }
+
+        // Check if entity is favorited
+        function isFavorite(type, entityId) {
+            if (!currentUser) return false;
+            const userId = currentUser.id;
+            if (!favorites[userId]) return false;
+            return favorites[userId].some(f => f.type === type && f.entityId === entityId);
+        }
+
+        // Format time ago
+        function timeAgo(timestamp) {
+            const now = new Date();
+            const past = new Date(timestamp);
+            const diffMs = now - past;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+            
+            if (diffMins < 1) return 'just now';
+            if (diffMins < 60) return `${diffMins} min${diffMins > 1 ? 's' : ''} ago`;
+            if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+            return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+        }
+
+        // Profile page
+        function renderProfile() {
+            const content = document.getElementById('mainContent');
+            updateUserStats();
+            
+            const userActivities = activityLog.filter(a => a.userId === currentUser.id).slice(-20).reverse();
+            const userFavorites = favorites[currentUser.id] || [];
+            
+            const avatarOptions = ['📖', '🎲', '✨', '🌟', '🔮', '⚔️', '🛡️', '🏰', '🐉', '🦄', '👑', '🗡️', '🎭', '📚', '🌙'];
+            
+            content.innerHTML = `
+                <div class="hero-section mb-6">
+                    <div class="flex items-center gap-6">
+                        <div class="user-avatar" style="width: 100px; height: 100px; font-size: 48px;">
+                            ${currentUser.profile.avatar}
+                        </div>
+                        <div>
+                            <h1 class="text-4xl font-bold mb-2" style="color: #1E40AF;">${currentUser.username}</h1>
+                            <p style="color: #6B6B6B;">${currentUser.email}</p>
+                            <p class="text-sm" style="color: #6B6B6B;">Member since ${new Date(currentUser.createdAt).toLocaleDateString()}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                    <div class="stat-card">
+                        <div class="text-4xl font-bold mb-2">${currentUser.stats.totalWorlds}</div>
+                        <div class="text-lg">Worlds Created</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="text-4xl font-bold mb-2">${currentUser.stats.totalCharacters}</div>
+                        <div class="text-lg">Characters</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="text-4xl font-bold mb-2">${currentUser.stats.totalLore}</div>
+                        <div class="text-lg">Lore Entries</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="text-4xl font-bold mb-2">${currentUser.stats.totalLocations}</div>
+                        <div class="text-lg">Locations</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="text-4xl font-bold mb-2">${currentUser.stats.totalEvents}</div>
+                        <div class="text-lg">Events</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="text-4xl font-bold mb-2">${currentUser.stats.totalPowers}</div>
+                        <div class="text-lg">Powers</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="card p-6">
+                        <h2 class="text-2xl font-bold mb-4" style="color: #1E40AF;">About Me</h2>
+                        <div class="mb-4">
+                            <textarea id="bioTextarea" class="textarea" rows="4" placeholder="Tell us about yourself...">${currentUser.profile.bio || ''}</textarea>
+                        </div>
+                        <button class="btn btn-primary" onclick="saveBio()">Save Bio</button>
+                    </div>
+
+                    <div class="card p-6">
+                        <h2 class="text-2xl font-bold mb-4" style="color: #1E40AF;">Avatar</h2>
+                        <p class="mb-3" style="color: #6B6B6B;">Choose your avatar emoji:</p>
+                        <div class="grid grid-cols-5 gap-3 mb-4">
+                            ${avatarOptions.map(emoji => `
+                                <button onclick="changeAvatar('${emoji}')" class="p-3 text-3xl rounded-lg hover:bg-blue-100" style="background: ${currentUser.profile.avatar === emoji ? 'rgba(37, 99, 235, 0.2)' : 'rgba(139, 69, 19, 0.05)'}; border: 2px solid ${currentUser.profile.avatar === emoji ? '#2563EB' : 'transparent'}; cursor: pointer;">
+                                    ${emoji}
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <div class="card p-6">
+                        <h2 class="text-2xl font-bold mb-4" style="color: #1E40AF;">Appearance</h2>
+                        <div class="mb-4">
+                            <label class="block mb-2 font-bold">Theme</label>
+                            <select id="themeSelect" class="select" onchange="changeTheme(this.value)">
+                                <option value="light" ${currentUser.profile.theme === 'light' ? 'selected' : ''}>Light</option>
+                                <option value="dark" ${currentUser.profile.theme === 'dark' ? 'selected' : ''}>Dark</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block mb-2 font-bold">Font Size</label>
+                            <select id="fontSizeSelect" class="select" onchange="changeFontSize(this.value)">
+                                <option value="small" ${currentUser.profile.fontSize === 'small' ? 'selected' : ''}>Small</option>
+                                <option value="medium" ${currentUser.profile.fontSize === 'medium' ? 'selected' : ''}>Medium</option>
+                                <option value="large" ${currentUser.profile.fontSize === 'large' ? 'selected' : ''}>Large</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="card p-6">
+                        <h2 class="text-2xl font-bold mb-4" style="color: #1E40AF;">Account</h2>
+                        <div class="mb-3">
+                            <p><strong>Username:</strong> ${currentUser.username}</p>
+                        </div>
+                        <div class="mb-3">
+                            <p><strong>Email:</strong> ${currentUser.email}</p>
+                        </div>
+                        <div class="mb-3">
+                            <p><strong>Joined:</strong> ${new Date(currentUser.createdAt).toLocaleDateString()}</p>
+                        </div>
+                        <div class="mb-3">
+                            <p><strong>Last Login:</strong> ${new Date(currentUser.lastLoginAt).toLocaleDateString()}</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="logout()" style="background: linear-gradient(135deg, #dc2626, #991b1b); width: 100%;">Logout</button>
+                    </div>
+
+                    <div class="card p-6 lg:col-span-2">
+                        <h2 class="text-2xl font-bold mb-4" style="color: #1E40AF;">Activity Log</h2>
+                        ${userActivities.length > 0 ? `
+                            <div class="space-y-2 max-h-96 overflow-y-auto">
+                                ${userActivities.map(activity => `
+                                    <div class="timeline-item">
+                                        <div class="p-3 rounded-lg" style="background: rgba(37, 99, 235, 0.05);">
+                                            <div class="flex justify-between items-start">
+                                                <div>
+                                                    <span class="font-semibold">${activity.action}</span>
+                                                    <span class="ml-1">${activity.type}:</span>
+                                                    <span class="ml-1" style="color: #1E40AF;">${activity.entityName}</span>
+                                                </div>
+                                                <span class="text-sm" style="color: #6B6B6B;">${timeAgo(activity.timestamp)}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : '<p style="color: #6B6B6B;">No activity yet</p>'}
+                    </div>
+
+                    <div class="card p-6 lg:col-span-2">
+                        <h2 class="text-2xl font-bold mb-4" style="color: #1E40AF;">My Favorites ⭐</h2>
+                        ${userFavorites.length > 0 ? `
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                ${userFavorites.map(fav => {
+                                    const entity = getEntityById(fav.type, fav.entityId);
+                                    if (!entity) return '';
+                                    const name = entity.name || entity.title;
+                                    const icons = { worlds: '🌍', characters: '👤', lore: '📜', locations: '📍', events: '⚡', powers: '✨' };
+                                    return `
+                                        <div class="p-3 rounded-lg cursor-pointer" style="background: rgba(139, 69, 19, 0.1);" onclick="viewEntity('${fav.type}', '${fav.entityId}')">
+                                            <div class="font-bold">${icons[fav.type]} ${name}</div>
+                                            <div class="text-sm" style="color: #6B6B6B;">${fav.type} • Added ${timeAgo(fav.addedAt)}</div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        ` : '<p style="color: #6B6B6B;">No favorites yet. Click the ⭐ icon on any entity to add it here!</p>'}
+                    </div>
+                </div>
+
+                <div class="card p-4 mt-6" style="background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.3);">
+                    <h4 class="font-bold mb-2" style="color: #1E40AF;">💡 Demo Mode</h4>
+                    <p style="font-size: 13px; color: #6B6B6B;">This demo runs in a secure sandbox. All data exists in browser memory during your session. Create worlds, characters, and favorites - they'll persist while you use the app!</p>
+                </div>
+            `;
+        }
+
+        function saveBio() {
+            const bio = document.getElementById('bioTextarea').value;
+            currentUser.profile.bio = bio;
+            showToast('Bio saved successfully!');
+            logActivity('profile', 'updated bio', currentUser.id, currentUser.username);
+        }
+
+        function changeAvatar(emoji) {
+            currentUser.profile.avatar = emoji;
+            updateUserDisplay();
+            renderProfile();
+            showToast('Avatar updated!');
+            logActivity('profile', 'changed avatar', currentUser.id, currentUser.username);
+        }
+
+        function changeTheme(theme) {
+            currentUser.profile.theme = theme;
+            if (theme === 'dark' && !isDarkMode) {
+                toggleDarkMode();
+            } else if (theme === 'light' && isDarkMode) {
+                toggleDarkMode();
+            }
+            showToast('Theme updated!');
+            logActivity('profile', 'changed theme', currentUser.id, currentUser.username);
+        }
+
+        function changeFontSize(size) {
+            currentUser.profile.fontSize = size;
+            const sizes = { small: '13px', medium: '14px', large: '16px' };
+            document.body.style.fontSize = sizes[size];
+            showToast('Font size updated!');
+            logActivity('profile', 'changed font size', currentUser.id, currentUser.username);
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                const username = currentUser ? currentUser.username : 'User';
+                const userPassword = currentUser ? currentUser.password : '';
+                
+                // Clear active session (but keep userDatabase intact!)
+                currentUser = null;
+                activeSession = null;
+                lastActivityTime = 0;
+                
+                document.querySelector('.modal')?.remove();
+                showAuthScreen();
+                document.getElementById('authForm').reset();
+                showToast(`Logged out successfully!`);
+                
+                console.log('🚪 Logout successful');
+                console.log('💾 User database preserved in memory (lost on page refresh)');
+                console.log('🔄 You can login again with:', username, '/', userPassword);
+                console.log('📋 Available accounts:', userDatabase.map(u => u.username).join(', '));
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeSession();
+            if (!currentUser) {
+                showAuthScreen();
+            }
+        });
+
+        // Initial render
+        initializeSession();
+        if (!currentUser) {
+            showAuthScreen();
+        }
+    </script>
+</body>
+</html>
